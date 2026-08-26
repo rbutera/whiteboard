@@ -9,3 +9,8 @@
 export const PROTOCOL_VERSION = "0.1" as const;
 
 export type ProtocolVersion = typeof PROTOCOL_VERSION;
+
+export * from "./wire/element.js";
+export * from "./wire/schema.js";
+export * from "./wire/ops.js";
+export * from "./wire/errors.js";
