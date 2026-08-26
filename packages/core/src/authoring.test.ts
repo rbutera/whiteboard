@@ -110,6 +110,8 @@ describe("the kit's validation surfaces agree with validate()", () => {
       { weight: 1 }, // missing required text
       { text: 5 }, // wrong type
       { text: "hi", tags: "x" }, // many wants an array
+      { text: "hi", weight: Number.NaN }, // non-finite: both reject
+      { text: "hi", weight: Number.POSITIVE_INFINITY }, // non-finite: both reject
     ];
     for (const data of dataCases) {
       const viaKit = noteData.safeParse(data).success;

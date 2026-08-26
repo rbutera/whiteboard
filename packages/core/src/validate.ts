@@ -28,7 +28,9 @@ function checkScalar(
     case "string":
       return typeof value === "string" ? null : "wrong-type";
     case "number":
-      return typeof value === "number" ? null : "wrong-type";
+      // Non-finite numbers (NaN, ±Infinity) cannot cross JSON, so the wire-
+      // honest check is finiteness, matching the authoring dataValidator.
+      return typeof value === "number" && Number.isFinite(value) ? null : "wrong-type";
     case "boolean":
       return typeof value === "boolean" ? null : "wrong-type";
     case "json":
@@ -120,12 +122,13 @@ export function validate(
       if (!live.has(op.id)) return reject("unknown-element", `unknown element: ${op.id}`);
       const kindId = kindOf.get(op.id);
       const declared = kindId === undefined ? undefined : kinds.get(kindId);
-      if (declared) {
-        for (const attr of declared.attributes) {
-          if (!Object.hasOwn(op.data, attr.name)) continue;
-          const code = checkValue(op.data[attr.name], attr, live);
-          if (code) return reject(code, typedMessage(attr, code));
-        }
+      // A live id whose kind the schema does not declare cannot be type-checked
+      // — fail closed as unknown-kind rather than skipping every check.
+      if (!declared) return reject("unknown-kind", `unknown kind: ${kindId ?? "(unmapped)"}`);
+      for (const attr of declared.attributes) {
+        if (!Object.hasOwn(op.data, attr.name)) continue;
+        const code = checkValue(op.data[attr.name], attr, live);
+        if (code) return reject(code, typedMessage(attr, code));
       }
     } else {
       if (!live.has(op.id)) return reject("unknown-element", `unknown element: ${op.id}`);

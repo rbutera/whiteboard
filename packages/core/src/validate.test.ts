@@ -186,6 +186,22 @@ describe("validate — batch and update semantics", () => {
     expect(validate(schema, ops, preexisting)).toEqual({ ok: true });
   });
 
+  it("unknown-kind when a pre-existing id's mapped kind is not in the schema", () => {
+    const ops: Op[] = [
+      { op: "update", op_id: "u1", id: "old", data: { text: 42, parent: "ghost" } },
+    ];
+    expect(validate(schema, ops, new Map([["old", "widget"]]))).toMatchObject({
+      ok: false,
+      code: "unknown-kind",
+    });
+  });
+
+  it("rejects non-finite numbers as wrong-type", () => {
+    expect(
+      validate(schema, [create("e1", { text: "hi", weight: Number.NaN })], empty),
+    ).toMatchObject({ ok: false, code: "wrong-type" });
+  });
+
   it("duplicate-id when a create-delete-create remints an id (SPEC: any id minted earlier)", () => {
     const ops: Op[] = [
       create("e1", { text: "a" }),
