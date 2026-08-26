@@ -8,10 +8,11 @@ This document is the authority for the wire contract and its version. Package
 semver (each `@whtbrd/*` library's npm version) is a **separate axis** from
 the protocol version defined here.
 
-> Status: skeleton (A1). The locked shapes below come from the decision tickets
-> (rbutera/rennet#453–#456); the sections marked _draft_ are finalized by A2
-> (tool shapes) and A3 (reference server). No section here may contradict those
-> tickets.
+> Status: A2 finalized the **Wire shape** and **Error codes** sections against
+> the shipped `@whtbrd/core` schemas. The locked shapes come from the decision
+> tickets (rbutera/rennet#453–#456); the one remaining section marked _draft_
+> (**Projection semantics**) is finalized by A3 (reference server). No section
+> here may contradict those tickets.
 
 ## Protocol version
 
@@ -175,5 +176,5 @@ without a bump to the protocol version above and the discussion that implies.
 _Draft (A3)._ How the append-only event log projects to board state: event
 ordering, how `apply` ops become events, `op_id` dedup (via client op-ids and
 the event log, per #453 — A3 decides where dedup happens), and the deterministic
-fold from log to current state. The fixture corpus covers log→projection cases,
-not only validate/reject.
+fold from log to current state. A3 will extend the fixture corpus with
+log→projection cases; today the corpus covers validate/reject only.
