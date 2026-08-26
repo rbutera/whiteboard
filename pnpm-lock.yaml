@@ -34,7 +34,7 @@ importers:
 
   packages/server:
     dependencies:
-      '@whiteboard/core':
+      '@whtbrd/core':
         specifier: workspace:*
         version: link:../core
 

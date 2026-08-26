@@ -2,7 +2,7 @@
 
 The shared conformance corpus for the whiteboard protocol. It is **not a
 package** — it is language-neutral JSON that every implementation runs. The TS
-twins (`@whiteboard/core`, `@whiteboard/server`) and the Python twins both run
+twins (`@whtbrd/core`, `@whtbrd/server`) and the Python twins both run
 this whole corpus in CI; passing it is what "implements protocol version X"
 means.
 

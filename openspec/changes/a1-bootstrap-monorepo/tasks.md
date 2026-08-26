@@ -10,8 +10,8 @@
 
 ## 3. Package skeletons
 
-- [x] 3.1 `packages/core` → `@whiteboard/core`: `package.json` (MIT, `0.0.0`), `src/index.ts` exporting `PROTOCOL_VERSION` (the version SPEC.md declares — see 4.1) as a typed constant, `build` (tsc), `typecheck`, and `test` targets. One real Vitest test asserting the export. All three targets green through nx.
-- [x] 3.2 `packages/server` → `@whiteboard/server`: same shape, depends on `@whiteboard/core` via `workspace:*`; `src/index.ts` re-exports or consumes `PROTOCOL_VERSION` from core. Its Vitest test imports from `@whiteboard/core` — the cross-package resolution proof. Green through nx.
+- [x] 3.1 `packages/core` → `@whtbrd/core`: `package.json` (MIT, `0.0.0`), `src/index.ts` exporting `PROTOCOL_VERSION` (the version SPEC.md declares — see 4.1) as a typed constant, `build` (tsc), `typecheck`, and `test` targets. One real Vitest test asserting the export. All three targets green through nx.
+- [x] 3.2 `packages/server` → `@whtbrd/server`: same shape, depends on `@whtbrd/core` via `workspace:*`; `src/index.ts` re-exports or consumes `PROTOCOL_VERSION` from core. Its Vitest test imports from `@whtbrd/core` — the cross-package resolution proof. Green through nx.
 - [x] 3.3 Vitest wiring: use the official `@nx/vite` plugin at the same version as `nx` (inspect inference with `pnpm nx show project core` before adding manual config); plain per-package vitest config if inference fights. — Inference fought: `@nx/vite/plugin` (23.1.1) produced no `test` target from a vitest-only config on vitest 4, verified via `pnpm nx show project core`. Took the sanctioned fallback: a plain per-package `vitest.config.ts` + an explicit `vitest run` nx `test` target (cache/inputs/`^build` from `targetDefaults`); dropped the unused `@nx/vite` dep.
 - [x] 3.4 (was implicit) `@nx/js` present as the graph plugin.
 
