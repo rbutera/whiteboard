@@ -1,7 +1,12 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.nx"]
+    "includes": [
+      "**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/.nx"
+    ]
   },
   "formatter": {
     "enabled": true,
