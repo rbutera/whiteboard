@@ -69,43 +69,52 @@ describe("compileToWire — derivation-chain guard", () => {
   });
 });
 
-describe("validating via the kit agrees with validate()", () => {
+describe("the kit's validation surfaces agree with validate()", () => {
   const create = (id: string, data: Record<string, unknown>, kind = "note"): Op => ({
     op: "create",
     op_id: `c-${id}`,
     element: { id, kind, data },
   });
-  const empty: ReadonlySet<string> = new Set();
 
-  // Inputs spanning accept and every code the type/ref checks can raise.
-  const cases: { ops: Op[]; existing: ReadonlySet<string> }[] = [
-    { ops: [create("e1", { text: "hi" })], existing: empty },
-    {
-      ops: [
-        create("a", { text: "t" }),
-        create("b", {
-          text: "t",
-          weight: 3,
-          done: true,
-          meta: { x: [1] },
-          parent: "a",
-          tags: ["x"],
-          children: ["a"],
-        }),
-      ],
-      existing: empty,
-    },
-    { ops: [create("e1", { weight: 1 })], existing: empty }, // missing-required
-    { ops: [create("e1", { text: 5 })], existing: empty }, // wrong-type
-    { ops: [create("e1", { text: "hi", parent: "ghost" })], existing: empty }, // bad-ref
-    { ops: [create("e1", { text: "hi" }, "widget")], existing: empty }, // unknown-kind
-    { ops: [create("old", { text: "hi" })], existing: new Set(["old"]) }, // duplicate-id
-  ];
-
-  it("returns the identical verdict as validate() on the compiled wire", () => {
-    const wire = compileToWire(authored);
+  // validateAuthored compiles `authored` then calls validate(); comparing it to
+  // validate() on the *hand-written* `expectedWire` is a real drift check (not a
+  // self-comparison): if compileToWire drifted, the verdicts would diverge.
+  it("validateAuthored matches validate() on the hand-written wire", () => {
+    const cases: { ops: Op[]; existing: ReadonlyMap<string, string> }[] = [
+      { ops: [create("e1", { text: "hi" })], existing: new Map() },
+      { ops: [create("e1", { weight: 1 })], existing: new Map() }, // missing-required
+      { ops: [create("e1", { text: 5 })], existing: new Map() }, // wrong-type
+      { ops: [create("e1", { text: "hi", parent: "ghost" })], existing: new Map() }, // bad-ref
+      { ops: [create("e1", { text: "hi" }, "widget")], existing: new Map() }, // unknown-kind
+      { ops: [create("old", { text: "hi" })], existing: new Map([["old", "note"]]) }, // duplicate-id
+      // pre-existing update type-check flows through the kit too:
+      {
+        ops: [{ op: "update", op_id: "u", id: "old", data: { text: 5 } }],
+        existing: new Map([["old", "note"]]),
+      },
+    ];
     for (const { ops, existing } of cases) {
-      expect(validateAuthored(authored, ops, existing)).toEqual(validate(wire, ops, existing));
+      expect(validateAuthored(authored, ops, existing)).toEqual(
+        validate(expectedWire, ops, existing),
+      );
+    }
+  });
+
+  // dataValidator is the other derived surface; it judges type + required only
+  // (no refs/kind/dup), so check it agrees with validate() on those cases.
+  it("dataValidator matches validate() on type/required checks", () => {
+    const noteData = dataValidator(authored, "note");
+    const dataCases: Record<string, unknown>[] = [
+      { text: "hi" },
+      { text: "hi", weight: 3, done: true, tags: ["a"] },
+      { weight: 1 }, // missing required text
+      { text: 5 }, // wrong type
+      { text: "hi", tags: "x" }, // many wants an array
+    ];
+    for (const data of dataCases) {
+      const viaKit = noteData.safeParse(data).success;
+      const viaValidate = validate(compileToWire(authored), [create("e", data)], new Map()).ok;
+      expect(viaKit).toBe(viaValidate);
     }
   });
 });

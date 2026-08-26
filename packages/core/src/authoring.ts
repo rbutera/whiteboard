@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type ValidationResult, validate } from "./validate.js";
 import type { Op } from "./wire/ops.js";
-import type { AttributeType, WireSchema } from "./wire/schema.js";
+import type { Attribute, AttributeType, WireSchema } from "./wire/schema.js";
 
 /**
  * The host-schema authoring kit: a typed TS surface a host declares its kinds
@@ -13,14 +13,10 @@ import type { AttributeType, WireSchema } from "./wire/schema.js";
  * always emits output the wire-schema Zod schema accepts.
  */
 
-/** An authored attribute. Same fields as the wire attribute, but keyed by name
- * in its kind's `attributes` map rather than carrying its own `name`. */
-export interface AuthoredAttribute {
-  description: string;
-  type: AttributeType;
-  required: boolean;
-  many?: boolean;
-}
+/** An authored attribute: the wire attribute minus its `name` (the name is the
+ * key in its kind's `attributes` map). Derived from `Attribute` so the
+ * authoring layer cannot drift from the wire type. */
+export type AuthoredAttribute = Omit<Attribute, "name">;
 
 /** An authored kind: a description and its attributes, keyed by attribute name. */
 export interface AuthoredKind {
@@ -142,7 +138,7 @@ export function dataValidator(schema: AuthoredSchema, kindId: string): z.ZodType
 export function validateAuthored(
   authored: AuthoredSchema,
   ops: readonly Op[],
-  existingIds: ReadonlySet<string>,
+  existing: ReadonlyMap<string, string>,
 ): ValidationResult {
-  return validate(compileToWire(authored), ops, existingIds);
+  return validate(compileToWire(authored), ops, existing);
 }

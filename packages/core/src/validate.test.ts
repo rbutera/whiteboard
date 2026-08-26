@@ -32,7 +32,7 @@ const create = (id: string, data: Record<string, unknown>, kind = "note"): Op =>
   op_id: `c-${id}`,
   element: { id, kind, data },
 });
-const empty: ReadonlySet<string> = new Set();
+const empty: ReadonlyMap<string, string> = new Map();
 
 describe("validate — accepts", () => {
   it("accepts a minimal valid create", () => {
@@ -66,7 +66,7 @@ describe("validate — accepts", () => {
 
   it("accepts an element ref to a pre-existing id", () => {
     const ops = [create("c", { text: "child", parent: "old" })];
-    expect(validate(schema, ops, new Set(["old"]))).toEqual({ ok: true });
+    expect(validate(schema, ops, new Map([["old", "note"]]))).toEqual({ ok: true });
   });
 
   it("accepts a partial update that matches declared types", () => {
@@ -132,7 +132,7 @@ describe("validate — one reject per code", () => {
   });
 
   it("duplicate-id (create reusing a pre-existing id)", () => {
-    const r = validate(schema, [create("old", { text: "hi" })], new Set(["old"]));
+    const r = validate(schema, [create("old", { text: "hi" })], new Map([["old", "note"]]));
     expect(r).toMatchObject({ ok: false, code: "duplicate-id" });
   });
 
@@ -167,5 +167,31 @@ describe("validate — batch and update semantics", () => {
       create("c", { text: "c", parent: "p" }),
     ];
     expect(validate(schema, ops, empty)).toMatchObject({ ok: false, code: "bad-ref" });
+  });
+
+  const preexisting = new Map([["old", "note"]]);
+
+  it("type-checks an update to a pre-existing element (wrong-type)", () => {
+    const ops: Op[] = [{ op: "update", op_id: "u1", id: "old", data: { text: 42 } }];
+    expect(validate(schema, ops, preexisting)).toMatchObject({ ok: false, code: "wrong-type" });
+  });
+
+  it("checks refs on an update to a pre-existing element (bad-ref)", () => {
+    const ops: Op[] = [{ op: "update", op_id: "u1", id: "old", data: { parent: "ghost" } }];
+    expect(validate(schema, ops, preexisting)).toMatchObject({ ok: false, code: "bad-ref" });
+  });
+
+  it("accepts a well-typed update to a pre-existing element", () => {
+    const ops: Op[] = [{ op: "update", op_id: "u1", id: "old", data: { weight: 5 } }];
+    expect(validate(schema, ops, preexisting)).toEqual({ ok: true });
+  });
+
+  it("duplicate-id when a create-delete-create remints an id (SPEC: any id minted earlier)", () => {
+    const ops: Op[] = [
+      create("e1", { text: "a" }),
+      { op: "delete", op_id: "d1", id: "e1" },
+      create("e1", { text: "b" }),
+    ];
+    expect(validate(schema, ops, empty)).toMatchObject({ ok: false, code: "duplicate-id" });
   });
 });

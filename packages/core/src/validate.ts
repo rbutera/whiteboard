@@ -69,34 +69,37 @@ function typedMessage(attr: Attribute, code: ErrorCode): string {
  * Stateless, typed, all-or-nothing validation of a flat ordered ops list
  * against a host schema. Returns the first failure, or acceptance.
  *
- * @param wireSchema  the board's declared host schema.
- * @param ops         the `apply` ops, validated in order.
- * @param existingIds ids already present on the board (empty for a fresh
- *   board). Ops may reference ids minted earlier in the same batch.
+ * @param wireSchema the board's declared host schema.
+ * @param ops        the `apply` ops, validated in order.
+ * @param existing   the ids already present on the board, each mapped to its
+ *   kind (empty for a fresh board). The kind lets updates to pre-existing
+ *   elements be type-checked, exactly like updates to elements minted in this
+ *   batch. Ops may reference ids minted earlier in the same batch.
  *
  * Within-batch minting and deletion are tracked. Undeclared `data` fields pass
- * through untouched. Updates to elements minted in this batch are type-checked
- * against their kind (partial merge — absent attributes are unchanged);
- * updates to pre-existing ids are existence-checked only, since the caller
- * supplies ids without kinds.
- * ponytail: update type-check covers in-batch elements only; if A3 needs it for
- * pre-existing elements, widen `existingIds` to carry kinds.
+ * through untouched. Updates type-check the supplied `data` against the target
+ * element's kind (partial merge — absent attributes are unchanged). A create
+ * reusing any id that is live OR was minted earlier in this batch (even if
+ * since deleted) is a `duplicate-id`, per SPEC.md's error-codes closure.
  */
 export function validate(
   wireSchema: WireSchema,
   ops: readonly Op[],
-  existingIds: ReadonlySet<string>,
+  existing: ReadonlyMap<string, string>,
 ): ValidationResult {
   const kinds = new Map<string, Kind>(wireSchema.kinds.map((k) => [k.id, k]));
-  const live = new Set(existingIds);
-  const mintedKinds = new Map<string, string>();
+  const live = new Set(existing.keys());
+  const kindOf = new Map(existing);
+  const everMinted = new Set<string>();
 
   for (const op of ops) {
     if (op.op === "create") {
       const { id, kind, data } = op.element;
       const declared = kinds.get(kind);
       if (!declared) return reject("unknown-kind", `unknown kind: ${kind}`);
-      if (live.has(id)) return reject("duplicate-id", `element id already exists: ${id}`);
+      if (live.has(id) || everMinted.has(id)) {
+        return reject("duplicate-id", `element id already exists: ${id}`);
+      }
       for (const attr of declared.attributes) {
         if (!Object.hasOwn(data, attr.name)) {
           if (attr.required) {
@@ -111,10 +114,11 @@ export function validate(
         if (code) return reject(code, typedMessage(attr, code));
       }
       live.add(id);
-      mintedKinds.set(id, kind);
+      everMinted.add(id);
+      kindOf.set(id, kind);
     } else if (op.op === "update") {
       if (!live.has(op.id)) return reject("unknown-element", `unknown element: ${op.id}`);
-      const kindId = mintedKinds.get(op.id);
+      const kindId = kindOf.get(op.id);
       const declared = kindId === undefined ? undefined : kinds.get(kindId);
       if (declared) {
         for (const attr of declared.attributes) {
@@ -126,7 +130,6 @@ export function validate(
     } else {
       if (!live.has(op.id)) return reject("unknown-element", `unknown element: ${op.id}`);
       live.delete(op.id);
-      mintedKinds.delete(op.id);
     }
   }
 
