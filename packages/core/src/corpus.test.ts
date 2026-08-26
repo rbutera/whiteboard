@@ -35,16 +35,17 @@ const FixtureSchema = z.object({
 
 /**
  * Load every fixture file in a corpus directory eagerly at collection time. The
- * corpus is a flat set of `.json` files; anything else non-hidden — a stray
- * file, a misnamed fixture, or a nested subdirectory — throws rather than being
- * silently skipped (a silent skip lets a fixture never run and pass falsely).
- * Hidden entries (e.g. `.gitkeep`) are exempt. A read or JSON error also throws.
+ * corpus is a flat set of `.json` files. Only `.gitkeep` is exempt; every other
+ * entry — a stray file, a misnamed fixture, a nested subdirectory, or any other
+ * hidden dotfile/dotdir (a `.bad.json`, a `.nested/`) — throws rather than being
+ * silently skipped (a silent skip lets a fixture never run and pass falsely). A
+ * read or JSON error also throws.
  */
 function loadFixtures(dir: string): { file: string; raw: unknown }[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (entry.name.startsWith(".")) return [];
+    if (entry.name === ".gitkeep") return [];
     const full = join(dir, entry.name);
-    if (entry.isDirectory() || !entry.name.endsWith(".json")) {
+    if (entry.name.startsWith(".") || entry.isDirectory() || !entry.name.endsWith(".json")) {
       throw new Error(`unexpected non-fixture entry in corpus: ${full}`);
     }
     return [{ file: entry.name, raw: JSON.parse(readFileSync(full, "utf8")) }];
@@ -99,10 +100,16 @@ describe("conformance corpus", () => {
       expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
     });
 
-    it("exempts hidden entries like .gitkeep", () => {
-      const dir = mkdtempSync(join(tmpdir(), "corpus-hidden-"));
+    it("exempts .gitkeep only", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-gitkeep-"));
       writeFileSync(join(dir, ".gitkeep"), "");
       expect(loadFixtures(dir)).toEqual([]);
+    });
+
+    it("fails on a hidden entry that is not .gitkeep", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-hidden-"));
+      writeFileSync(join(dir, ".bad.json"), "{}");
+      expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
     });
   });
 
