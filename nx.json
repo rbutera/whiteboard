@@ -2,11 +2,12 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": [
-      "default",
-      "!{projectRoot}/**/*.test.ts",
-      "!{projectRoot}/vitest.config.ts",
-      "!{projectRoot}/tsconfig.json"
+    "production": ["default", "!{projectRoot}/**/*.test.ts", "!{projectRoot}/vitest.config.ts"],
+    "biomeFiles": [
+      "{workspaceRoot}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
+      "!{workspaceRoot}/node_modules/**",
+      "!{workspaceRoot}/**/dist/**",
+      "{workspaceRoot}/biome.json"
     ],
     "sharedGlobals": [
       "{workspaceRoot}/tsconfig.base.json",
@@ -15,6 +16,14 @@
     ]
   },
   "targetDefaults": {
+    "format": {
+      "cache": true,
+      "inputs": ["biomeFiles"]
+    },
+    "lint": {
+      "cache": true,
+      "inputs": ["biomeFiles"]
+    },
     "build": {
       "cache": true,
       "dependsOn": ["^build"],

@@ -1,5 +1,5 @@
 {
-  "name": "@whiteboard/workspace",
+  "name": "@whtbrd/workspace",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
@@ -21,24 +21,10 @@
     "name": "whiteboard",
     "targets": {
       "format": {
-        "command": "biome format .",
-        "cache": true,
-        "inputs": [
-          "{workspaceRoot}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
-          "!{workspaceRoot}/node_modules/**",
-          "!{workspaceRoot}/**/dist/**",
-          "{workspaceRoot}/biome.json"
-        ]
+        "command": "biome format ."
       },
       "lint": {
-        "command": "biome lint .",
-        "cache": true,
-        "inputs": [
-          "{workspaceRoot}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
-          "!{workspaceRoot}/node_modules/**",
-          "!{workspaceRoot}/**/dist/**",
-          "{workspaceRoot}/biome.json"
-        ]
+        "command": "biome lint ."
       }
     }
   }
