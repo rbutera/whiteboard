@@ -21,15 +21,15 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 4 — host-schema kit + drift test
 
-- [ ] 4.1 `src/authoring.ts`: `defineSchema(...)` — the TS authoring surface a host uses to declare kinds and typed attributes (full type inference; `element` attributes referenced by kind or plain id), and `compileToWire(authored)` producing a wire schema. Keep it one honest layer: authoring is convenience, wire is truth.
-- [ ] 4.2 Per-kind data typing: from an authored schema, expose the inferred TS type (and a Zod validator) for a kind's `data`, so a host gets compile-time checking of the elements it writes.
-- [ ] 4.3 Drift test: every authored example in the test suite compiles to output that parses under the wire-schema Zod schema, and validating via the authored kit agrees with `validate()` on the same inputs. This is the Zod→wire derivation-chain guard the plan demands. Commit.
+- [x] 4.1 `src/authoring.ts`: `defineSchema(...)` — the TS authoring surface a host uses to declare kinds and typed attributes (full type inference; `element` attributes referenced by kind or plain id), and `compileToWire(authored)` producing a wire schema. Keep it one honest layer: authoring is convenience, wire is truth.
+- [x] 4.2 Per-kind data typing: from an authored schema, expose the inferred TS type (and a Zod validator) for a kind's `data`, so a host gets compile-time checking of the elements it writes.
+- [x] 4.3 Drift test: every authored example in the test suite compiles to output that parses under the wire-schema Zod schema, and validating via the authored kit agrees with `validate()` on the same inputs. This is the Zod→wire derivation-chain guard the plan demands. Commit.
 
 ## Cluster 5 — populate the corpus + runner
 
-- [ ] 5.1 Fill `spec/fixtures/accept/` and `spec/fixtures/reject/`: language-neutral JSON `{schema, input: {ops}, expect}` run from an empty board. Cover: each attribute type, `many`, optional-vs-required, extras pass through, within-batch mint-then-reference, multi-op batches — and at least one reject fixture per enum code, each named for what it proves.
-- [ ] 5.2 Corpus runner test in `@whtbrd/core`: load every fixture under `spec/fixtures/{accept,reject}`, parse `schema` with the wire schema, run `validate()`, assert the verdict matches `expect` (exact code on reject). Enforce enum closure both ways: every enum code appears in ≥1 reject fixture; every fixture's reject code is in the enum. The runner must fail on an unreadable or shape-invalid fixture, never skip it.
-- [ ] 5.3 Update `spec/fixtures/README.md`: drop the "intentionally empty" skeleton status; state that A2 populated validate/reject and A3 adds log→projection cases. Commit.
+- [x] 5.1 Fill `spec/fixtures/accept/` and `spec/fixtures/reject/`: language-neutral JSON `{schema, input: {ops}, expect}` run from an empty board. Cover: each attribute type, `many`, optional-vs-required, extras pass through, within-batch mint-then-reference, multi-op batches — and at least one reject fixture per enum code, each named for what it proves.
+- [x] 5.2 Corpus runner test in `@whtbrd/core`: load every fixture under `spec/fixtures/{accept,reject}`, parse `schema` with the wire schema, run `validate()`, assert the verdict matches `expect` (exact code on reject). Enforce enum closure both ways: every enum code appears in ≥1 reject fixture; every fixture's reject code is in the enum. The runner must fail on an unreadable or shape-invalid fixture, never skip it.
+- [x] 5.3 Update `spec/fixtures/README.md`: drop the "intentionally empty" skeleton status; state that A2 populated validate/reject and A3 adds log→projection cases. Commit.
 
 ## Cluster 6 — SPEC.md normative + verification
 
