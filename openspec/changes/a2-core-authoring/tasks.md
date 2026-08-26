@@ -16,7 +16,7 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 3 — typed validation
 
-- [ ] 3.1 `src/validate.ts`: `validate(wireSchema, ops, existingIds: ReadonlySet<string>)` → `{ok: true}` or `{ok: false, code, message}` (first failure wins; message includes the attribute's description for typed failures). Checks, in op order with within-batch minting/deletion tracked: unknown kind → `unknown-kind`; required attribute absent on create → `missing-required`; declared attribute value vs type (`many` = array of that type) → `wrong-type`; element-typed attribute referencing an id neither existing nor minted earlier → `bad-ref`; update/delete of an unknown id → `unknown-element`; create reusing a live id → `duplicate-id`. Undeclared data fields pass through untouched.
+- [x] 3.1 `src/validate.ts`: `validate(wireSchema, ops, existingIds: ReadonlySet<string>)` → `{ok: true}` or `{ok: false, code, message}` (first failure wins; message includes the attribute's description for typed failures). Checks, in op order with within-batch minting/deletion tracked: unknown kind → `unknown-kind`; required attribute absent on create → `missing-required`; declared attribute value vs type (`many` = array of that type) → `wrong-type`; element-typed attribute referencing an id neither existing nor minted earlier → `bad-ref`; update/delete of an unknown id → `unknown-element`; create reusing a live id → `duplicate-id`. Undeclared data fields pass through untouched.
 - [ ] 3.2 Unit tests: at least one accept and one reject per code, plus extras-pass-through, within-batch mint-then-reference accept, and update semantics (partial `data` merge validated against declared types). Commit.
 
 ## Cluster 4 — host-schema kit + drift test
