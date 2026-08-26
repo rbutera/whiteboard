@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true },
+          {
+            "name": "tags",
+            "description": "many strings",
+            "type": "string",
+            "required": false,
+            "many": true
+          }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "empty", "kind": "note", "data": { "text": "no tags", "tags": [] } }
+      },
+      {
+        "op": "create",
+        "op_id": "o2",
+        "element": {
+          "id": "multi",
+          "kind": "note",
+          "data": { "text": "many tags", "tags": ["one", "two", "three"] }
+        }
+      }
+    ]
+  },
+  "expect": "accept"
+}

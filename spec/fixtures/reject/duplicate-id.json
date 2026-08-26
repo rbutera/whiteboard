@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "e1", "kind": "note", "data": { "text": "first" } }
+      },
+      {
+        "op": "create",
+        "op_id": "o2",
+        "element": { "id": "e1", "kind": "note", "data": { "text": "reuses e1" } }
+      }
+    ]
+  },
+  "expect": { "reject": "duplicate-id" }
+}

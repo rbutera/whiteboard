@@ -1,0 +1,63 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true },
+          { "name": "weight", "description": "a number", "type": "number", "required": false },
+          { "name": "done", "description": "a flag", "type": "boolean", "required": false },
+          { "name": "meta", "description": "opaque json", "type": "json", "required": false },
+          {
+            "name": "parent",
+            "description": "the parent element",
+            "type": "element",
+            "required": false
+          },
+          {
+            "name": "tags",
+            "description": "many strings",
+            "type": "string",
+            "required": false,
+            "many": true
+          },
+          {
+            "name": "children",
+            "description": "child elements",
+            "type": "element",
+            "required": false,
+            "many": true
+          }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "a", "kind": "note", "data": { "text": "anchor" } }
+      },
+      {
+        "op": "create",
+        "op_id": "o2",
+        "element": {
+          "id": "b",
+          "kind": "note",
+          "data": {
+            "text": "every type",
+            "weight": 3,
+            "done": true,
+            "meta": { "arbitrary": ["json", 1, null] },
+            "parent": "a",
+            "tags": ["x", "y"],
+            "children": ["a"]
+          }
+        }
+      }
+    ]
+  },
+  "expect": "accept"
+}

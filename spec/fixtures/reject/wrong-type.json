@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "e1", "kind": "note", "data": { "text": 5 } }
+      }
+    ]
+  },
+  "expect": { "reject": "wrong-type" }
+}
