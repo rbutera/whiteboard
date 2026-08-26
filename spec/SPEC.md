@@ -5,7 +5,7 @@ is the truth; board **state is a projection** of that log. Agents and humans
 author the same board through a small set of **stateless tools**.
 
 This document is the authority for the wire contract and its version. Package
-semver (each `@whiteboard/*` library's npm version) is a **separate axis** from
+semver (each `@whtbrd/*` library's npm version) is a **separate axis** from
 the protocol version defined here.
 
 > Status: skeleton (A1). The locked shapes below come from the decision tickets
@@ -22,7 +22,7 @@ defines. It starts at **`0.1`**.
   library may release many npm versions while implementing the same protocol
   version.
 - Every whiteboard library declares the protocol version it implements (in TS,
-  `@whiteboard/core` exports `PROTOCOL_VERSION`) and **surfaces it in the MCP
+  `@whtbrd/core` exports `PROTOCOL_VERSION`) and **surfaces it in the MCP
   `describe` handshake**, so a client can learn what a given board service
   speaks.
 - TS and Python twins that claim the same protocol version MUST agree on every
@@ -96,6 +96,7 @@ A fixture's `reject` value MUST be one of these codes (see
 ## Projection semantics
 
 _Draft (A3)._ How the append-only event log projects to board state: event
-ordering, how `apply` ops become events, dedup by `op_id` at projection time,
-and the deterministic fold from log to current state. The fixture corpus covers
-log→projection cases, not only validate/reject.
+ordering, how `apply` ops become events, `op_id` dedup (via client op-ids and
+the event log, per #453 — A3 decides where dedup happens), and the deterministic
+fold from log to current state. The fixture corpus covers log→projection cases,
+not only validate/reject.
