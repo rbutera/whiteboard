@@ -1,4 +1,5 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -32,17 +33,26 @@ const FixtureSchema = z.object({
   expect: ExpectSchema,
 });
 
-/** Load every fixture file eagerly at collection time. A read or JSON error
- * throws here and fails the whole file — the corpus is never partially run. */
-function loadFixtures(kind: "accept" | "reject"): { file: string; raw: unknown }[] {
-  const dir = join(FIXTURES_ROOT, kind);
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
-    .map((file) => ({ file, raw: JSON.parse(readFileSync(join(dir, file), "utf8")) }));
+/**
+ * Load every fixture file in a corpus directory eagerly at collection time. The
+ * corpus is a flat set of `.json` files; anything else non-hidden — a stray
+ * file, a misnamed fixture, or a nested subdirectory — throws rather than being
+ * silently skipped (a silent skip lets a fixture never run and pass falsely).
+ * Hidden entries (e.g. `.gitkeep`) are exempt. A read or JSON error also throws.
+ */
+function loadFixtures(dir: string): { file: string; raw: unknown }[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.name.startsWith(".")) return [];
+    const full = join(dir, entry.name);
+    if (entry.isDirectory() || !entry.name.endsWith(".json")) {
+      throw new Error(`unexpected non-fixture entry in corpus: ${full}`);
+    }
+    return [{ file: entry.name, raw: JSON.parse(readFileSync(full, "utf8")) }];
+  });
 }
 
-const acceptFixtures = loadFixtures("accept");
-const rejectFixtures = loadFixtures("reject");
+const acceptFixtures = loadFixtures(join(FIXTURES_ROOT, "accept"));
+const rejectFixtures = loadFixtures(join(FIXTURES_ROOT, "reject"));
 
 describe("conformance corpus", () => {
   it("has fixtures to run", () => {
@@ -55,7 +65,7 @@ describe("conformance corpus", () => {
       it(`${file} accepts`, () => {
         const fx = FixtureSchema.parse(raw);
         expect(fx.expect).toBe("accept");
-        expect(validate(fx.schema, fx.input.ops, new Set())).toEqual({ ok: true });
+        expect(validate(fx.schema, fx.input.ops, new Map())).toEqual({ ok: true });
       });
     }
   });
@@ -68,11 +78,32 @@ describe("conformance corpus", () => {
         const code = fx.expect.reject;
         // Closure, direction (b): every fixture's reject code is in the enum.
         expect(ERROR_CODES as readonly string[]).toContain(code);
-        const result = validate(fx.schema, fx.input.ops, new Set());
+        const result = validate(fx.schema, fx.input.ops, new Map());
         expect(result.ok).toBe(false);
         if (!result.ok) expect(result.code).toBe(code);
       });
     }
+  });
+
+  describe("loader rejects unexpected corpus entries", () => {
+    it("fails on a stray non-json file", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-stray-"));
+      writeFileSync(join(dir, "notes.txt"), "not a fixture");
+      expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
+    });
+
+    it("fails on a nested fixture directory (no silent skip)", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-nested-"));
+      mkdirSync(join(dir, "nested"));
+      writeFileSync(join(dir, "nested", "a.json"), "{}");
+      expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
+    });
+
+    it("exempts hidden entries like .gitkeep", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-hidden-"));
+      writeFileSync(join(dir, ".gitkeep"), "");
+      expect(loadFixtures(dir)).toEqual([]);
+    });
   });
 
   it("closure: every enum code has at least one reject fixture", () => {
