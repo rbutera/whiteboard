@@ -14,7 +14,8 @@
     },
     "test": {
       "command": "vitest run",
-      "options": { "cwd": "packages/core" }
+      "options": { "cwd": "packages/core" },
+      "inputs": ["default", "^production", "{workspaceRoot}/spec/fixtures/**/*"]
     }
   }
 }
