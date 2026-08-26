@@ -6,8 +6,11 @@ twins (`@whtbrd/core`, `@whtbrd/server`) and the Python twins both run
 this whole corpus in CI; passing it is what "implements protocol version X"
 means.
 
-> Status: skeleton (A1). **A2 populates this corpus.** `accept/` and `reject/`
-> are intentionally empty for now.
+> Status: A2 populated `accept/` and `reject/` with the validate/reject cases —
+> every attribute type, `many`, optional-vs-required, extras pass-through,
+> within-batch mint-then-reference, multi-op batches, and one reject fixture per
+> error code. A3 adds the log→projection cases (see Scope). The `@whtbrd/core`
+> runner (`packages/core/src/corpus.test.ts`) runs the whole corpus in CI.
 
 ## Fixture shape
 
