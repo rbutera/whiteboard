@@ -1,0 +1,31 @@
+{
+  "name": "@whtbrd/workspace",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.32.1",
+  "type": "module",
+  "scripts": {
+    "check": "nx run-many -t format,lint,typecheck,test,build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.10",
+    "@nx/js": "23.1.1",
+    "@types/node": "22.20.1",
+    "nx": "23.1.1",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vitest": "4.1.11"
+  },
+  "nx": {
+    "name": "whiteboard",
+    "targets": {
+      "format": {
+        "command": "biome format ."
+      },
+      "lint": {
+        "command": "biome lint ."
+      }
+    }
+  }
+}

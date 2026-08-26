@@ -1,0 +1,20 @@
+{
+  "name": "server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/server/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "command": "rm -rf dist && tsc -p tsconfig.build.json",
+      "options": { "cwd": "packages/server" }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json",
+      "options": { "cwd": "packages/server" }
+    },
+    "test": {
+      "command": "vitest run",
+      "options": { "cwd": "packages/server" }
+    }
+  }
+}
