@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true },
+          { "name": "weight", "description": "a number", "type": "number", "required": false }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "e1", "kind": "note", "data": { "text": "only the required attribute" } }
+      }
+    ]
+  },
+  "expect": "accept"
+}

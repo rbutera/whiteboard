@@ -1,0 +1,29 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": true }
+        ]
+      }
+    ]
+  },
+  "input": {
+    "ops": [
+      {
+        "op": "create",
+        "op_id": "o1",
+        "element": { "id": "e1", "kind": "note", "data": { "text": "first" } }
+      },
+      { "op": "delete", "op_id": "o2", "id": "e1" },
+      {
+        "op": "create",
+        "op_id": "o3",
+        "element": { "id": "e1", "kind": "note", "data": { "text": "remint after delete" } }
+      }
+    ]
+  },
+  "expect": { "reject": "duplicate-id" }
+}
