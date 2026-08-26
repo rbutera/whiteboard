@@ -1,0 +1,20 @@
+{
+  "name": "core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/core/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "command": "tsc -p tsconfig.build.json",
+      "options": { "cwd": "packages/core" }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json",
+      "options": { "cwd": "packages/core" }
+    },
+    "test": {
+      "command": "vitest run",
+      "options": { "cwd": "packages/core" }
+    }
+  }
+}
