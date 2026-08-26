@@ -14,3 +14,4 @@ export * from "./wire/element.js";
 export * from "./wire/schema.js";
 export * from "./wire/ops.js";
 export * from "./wire/errors.js";
+export * from "./wire/tools.js";

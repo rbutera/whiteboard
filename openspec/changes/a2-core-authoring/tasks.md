@@ -11,8 +11,8 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 2 — five tool shapes
 
-- [ ] 2.1 `src/wire/tools.ts`: Zod request/response schemas + inferred types for the five tools, per #455 v3 — `create` (host schema in, `board_id` string out), `schema` (`board_id` in, wire schema out), `apply` (`board_id` + ops list in; accepted result or a single rejection `{code, message}` out — all-or-nothing), `describe` (`board_id` in; board metadata + `protocol_version` out), `events` (`board_id` + cursor in; ordered attributed events out) — plus `screenshot` (`board_id` in, rendered image out). `board_id` is a plain string everywhere; no session or connection concepts anywhere in these shapes.
-- [ ] 2.2 Tests: one round-trip parse per tool request and response; a rejection response carries exactly one enum code. Commit.
+- [x] 2.1 `src/wire/tools.ts`: Zod request/response schemas + inferred types for the five tools, per #455 v3 — `create` (host schema in, `board_id` string out), `schema` (`board_id` in, wire schema out), `apply` (`board_id` + ops list in; accepted result or a single rejection `{code, message}` out — all-or-nothing), `describe` (`board_id` in; board metadata + `protocol_version` out), `events` (`board_id` + cursor in; ordered attributed events out) — plus `screenshot` (`board_id` in, rendered image out). `board_id` is a plain string everywhere; no session or connection concepts anywhere in these shapes.
+- [x] 2.2 Tests: one round-trip parse per tool request and response; a rejection response carries exactly one enum code. Commit.
 
 ## Cluster 3 — typed validation
 
