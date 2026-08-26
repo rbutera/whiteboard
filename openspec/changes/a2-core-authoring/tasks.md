@@ -33,9 +33,9 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 6 — SPEC.md normative + verification
 
-- [ ] 6.1 SPEC.md **Wire shape**: replace the draft stub with the concrete JSON shapes of the five tool requests/responses, the element, the op envelope, and the wire host schema — matching the shipped Zod exports exactly (SPEC.md must not lie). Note that Zod/Pydantic are derived surfaces; the JSON here is canonical.
-- [ ] 6.2 SPEC.md **Error codes**: replace the draft table with the finalized closed enum (one row per code, meaning, and the tool response it appears in); state the closure rule (no new codes without a protocol-version discussion) and remove the `_Draft (A2)_` markers from both sections.
-- [ ] 6.3 Run the packet's verification: clean `pnpm check`; positive controls (flip a fixture's expect → runner fails; break compiler output → drift test fails; add a bogus-code fixture → closure assertion fails; revert each). Show evidence, commit, push, output `<promise>A2-COMPLETE</promise>`.
+- [x] 6.1 SPEC.md **Wire shape**: replace the draft stub with the concrete JSON shapes of the five tool requests/responses, the element, the op envelope, and the wire host schema — matching the shipped Zod exports exactly (SPEC.md must not lie). Note that Zod/Pydantic are derived surfaces; the JSON here is canonical.
+- [x] 6.2 SPEC.md **Error codes**: replace the draft table with the finalized closed enum (one row per code, meaning, and the tool response it appears in); state the closure rule (no new codes without a protocol-version discussion) and remove the `_Draft (A2)_` markers from both sections.
+- [x] 6.3 Run the packet's verification: clean `pnpm check`; positive controls (flip a fixture's expect → runner fails; break compiler output → drift test fails; add a bogus-code fixture → closure assertion fails; revert each). Show evidence, commit, push, output `<promise>A2-COMPLETE</promise>`.
 
 ## Notes
 
