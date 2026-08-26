@@ -3,7 +3,7 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 ## Cluster 1 — wire primitives
 
 - [x] 1.1 Add `zod` to `@whtbrd/core` (runtime dependency, current stable major). `pnpm check` stays green.
-- [ ] 1.2 `src/wire/element.ts`: Zod schema + inferred type for the element `{id: string, kind: string, data: Record<string, unknown>}`. Test: valid element parses; missing `id`/`kind` fails.
+- [x] 1.2 `src/wire/element.ts`: Zod schema + inferred type for the element `{id: string, kind: string, data: Record<string, unknown>}`. Test: valid element parses; missing `id`/`kind` fails.
 - [ ] 1.3 `src/wire/schema.ts`: Zod schemas + types for the wire host schema — attribute `{name, description, type: "string"|"number"|"boolean"|"element"|"json", required: boolean, many?: boolean}`, kind `{id, description, attributes: Attribute[]}`, wire schema = `{kinds: Kind[]}`. Tests cover each attribute type and `many`.
 - [ ] 1.4 `src/wire/ops.ts`: the flat ordered op envelope — `{op: "create", op_id, element}`, `{op: "update", op_id, id, data}`, `{op: "delete", op_id, id}` — as a discriminated union, plus the ops-list schema. Tests: each variant parses; unknown `op` fails.
 - [ ] 1.5 `src/wire/errors.ts`: the closed error-code enum as a Zod enum + type: `unknown-kind`, `missing-required`, `wrong-type`, `bad-ref`, `unknown-element`, `duplicate-id`. Export the list as a constant (the corpus runner and SPEC.md both key off it). If a code proves undetectable by pure validation during Cluster 3, delete it here and in SPEC.md in the same commit.
