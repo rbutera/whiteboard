@@ -5,7 +5,7 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "command": "tsc -p tsconfig.build.json",
+      "command": "rm -rf dist && tsc -p tsconfig.build.json",
       "options": { "cwd": "packages/server" }
     },
     "typecheck": {
