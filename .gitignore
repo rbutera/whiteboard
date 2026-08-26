@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.nx/
+coverage/
+*.log
+.DS_Store
+
+# Rai's global gitignore excludes openspec/; this repo tracks it
+!openspec/
