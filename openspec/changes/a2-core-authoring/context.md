@@ -29,7 +29,7 @@ Make `@whtbrd/core` the real wire contract: the five tool shapes as Zod schemas 
 ## Facts to bake in
 
 - The error-code enum is finalized HERE and is closed in **both** directions: every code has at least one reject fixture, and no fixture may use a code SPEC.md does not define. A later change may not add codes without a protocol-version discussion in SPEC.md.
-- Core validation is stateless: it takes the wire schema, the ops list, and the set of already-existing element ids as inputs, so the A3 server can call it against its projection. Within-batch minting counts — an op may reference an id created earlier in the same list.
+- Core validation is stateless: it takes the wire schema, the ops list, and a map of already-existing element ids to their kinds (`ReadonlyMap<string, string>`) as inputs, so the A3 server can call it against its projection. The kind lets updates to pre-existing elements be type-checked, not just existence-checked. Within-batch minting counts — an op may reference an id created earlier in the same list.
 - The wire shape is canonical JSON; the Zod schemas describe it, they do not define it. The drift test proves the authoring-kit compiler always emits output the wire schema accepts.
 - A2 fixtures are validate/reject cases run from an empty board (`input` carries the apply ops). Log→projection fixtures are A3's — do not add them.
 

@@ -40,8 +40,9 @@ for rendered read-back):
 3. **apply** — the single mutation verb: a flat, ordered list of ops against a
    board, each carrying an `op_id` for dedup.
 4. **describe** — board metadata and the protocol version the service implements.
-5. **events** — read the board's append-only event log (`get_events` polling;
-   a direct WebSocket is an alternative live-update transport).
+5. **events** — read the board's append-only event log by polling (`get_events`).
+   (#453 also blesses a direct WebSocket for live updates; that is a facade-level
+   transport for a later workstream, not a wire shape this document defines.)
 
 Statelessness: the facade holds **zero per-connection state**. `board_id` is a
 plain minted string passed as a tool argument; tools are listed unconditionally;
@@ -152,7 +153,7 @@ read after next.
 The set of error codes is a **closed enum**. Typed validation rejects a batch
 with exactly one of these codes; no library invents codes outside this list, and
 each code names one failure family stateless validation can detect from the host
-schema plus the set of known element ids. All six appear in the `apply` response
+schema plus the known element ids and their kinds. All six appear in the `apply` response
 (`{ ok: false, code, message }`); `message` is human-facing and carries the
 offending attribute's description on the typed failures.
 
