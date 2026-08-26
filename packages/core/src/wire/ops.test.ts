@@ -24,6 +24,11 @@ describe("OpSchema", () => {
   it("rejects a create missing its element", () => {
     expect(OpSchema.safeParse({ op: "create", op_id: "o5" }).success).toBe(false);
   });
+
+  it("rejects a delete carrying an unknown field (strict wire object)", () => {
+    const op = { op: "delete", op_id: "o6", id: "e1", data: { text: "x" } };
+    expect(OpSchema.safeParse(op).success).toBe(false);
+  });
 });
 
 describe("OpsSchema", () => {

@@ -15,7 +15,7 @@ export type AttributeType = z.infer<typeof AttributeTypeSchema>;
  * An attribute of a kind. `many: true` makes the value a list of that type.
  * `description` is agent-facing and is echoed into typed validation errors.
  */
-export const AttributeSchema = z.object({
+export const AttributeSchema = z.strictObject({
   name: z.string(),
   description: z.string(),
   type: AttributeTypeSchema,
@@ -25,7 +25,7 @@ export const AttributeSchema = z.object({
 export type Attribute = z.infer<typeof AttributeSchema>;
 
 /** A kind: an id, an agent-facing description, and its declared attributes. */
-export const KindSchema = z.object({
+export const KindSchema = z.strictObject({
   id: z.string(),
   description: z.string(),
   attributes: z.array(AttributeSchema),
@@ -33,7 +33,7 @@ export const KindSchema = z.object({
 export type Kind = z.infer<typeof KindSchema>;
 
 /** The wire host schema: just its kinds. */
-export const WireSchema = z.object({
+export const WireSchema = z.strictObject({
   kinds: z.array(KindSchema),
 });
 export type WireSchema = z.infer<typeof WireSchema>;

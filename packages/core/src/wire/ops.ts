@@ -9,14 +9,14 @@ import { ElementSchema } from "./element.js";
  */
 
 /** Create a new element. */
-export const CreateOpSchema = z.object({
+export const CreateOpSchema = z.strictObject({
   op: z.literal("create"),
   op_id: z.string(),
   element: ElementSchema,
 });
 
 /** Merge `data` into an existing element (partial update). */
-export const UpdateOpSchema = z.object({
+export const UpdateOpSchema = z.strictObject({
   op: z.literal("update"),
   op_id: z.string(),
   id: z.string(),
@@ -24,7 +24,7 @@ export const UpdateOpSchema = z.object({
 });
 
 /** Delete an existing element by id. */
-export const DeleteOpSchema = z.object({
+export const DeleteOpSchema = z.strictObject({
   op: z.literal("delete"),
   op_id: z.string(),
   id: z.string(),

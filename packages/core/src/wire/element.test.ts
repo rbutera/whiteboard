@@ -22,4 +22,9 @@ describe("ElementSchema", () => {
   it("rejects a non-string id", () => {
     expect(ElementSchema.safeParse({ id: 1, kind: "note", data: {} }).success).toBe(false);
   });
+
+  it("rejects an unknown top-level field (strict wire object)", () => {
+    const el = { id: "e1", kind: "note", data: {}, presentation: { x: 1 } };
+    expect(ElementSchema.safeParse(el).success).toBe(false);
+  });
 });

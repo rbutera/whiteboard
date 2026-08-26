@@ -56,6 +56,10 @@ describe("apply", () => {
       false,
     );
   });
+
+  it("rejects an accepted response smuggling extra fields (strict wire object)", () => {
+    expect(ApplyResponseSchema.safeParse({ ok: true, code: "wrong-type" }).success).toBe(false);
+  });
 });
 
 describe("describe", () => {

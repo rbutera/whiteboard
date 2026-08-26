@@ -11,7 +11,7 @@ import { z } from "zod";
  * The protocol carries no presentation, relations, or attention — those are
  * host-schema data. See `spec/SPEC.md` (Elements).
  */
-export const ElementSchema = z.object({
+export const ElementSchema = z.strictObject({
   id: z.string(),
   kind: z.string(),
   data: z.record(z.string(), z.unknown()),
