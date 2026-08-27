@@ -14,3 +14,8 @@ export {
   type WhiteboardMcpOptions,
 } from "./facade.js";
 export { type BoardRenderer, schematicRenderer } from "./render.js";
+export {
+  attachWebSocketPush,
+  type WebSocketPushHandle,
+  type WebSocketPushOptions,
+} from "./ws.js";

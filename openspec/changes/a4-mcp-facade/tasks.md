@@ -16,9 +16,9 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 ## Cluster 4 — transports: stdio bin + WebSocket push
 
-- [ ] 4.1 `src/bin.ts`: `wboard-mcp` — `createWhiteboardMcpServer()` on a fresh in-memory service, connected to `StdioServerTransport`. No flags. Stdio smoke test: spawn the built bin, drive create→apply→get_events with a real MCP client over stdio, assert the round-trip.
-- [ ] 4.2 `src/ws.ts`: `attachWebSocketPush(service, options: {port?: number; server?: http.Server; pollMs?: number})` → handle with `close()`. Client connects with `board_id` (required) + `cursor` (optional, default 0) as URL query params; stream each event as its own JSON frame — backlog after `cursor` first, then new events via a per-connection `getEvents` poller (default 250ms). Unknown board: one JSON error frame, then close. Poller stops on disconnect; `close()` tears everything down (tests must not leak handles). No changes to `@wboard/server`.
-- [ ] 4.3 WS tests: real socket on an ephemeral port — backlog delivery from a cursor; an `apply` during an open subscription delivers the new frames; two subscribers both receive; unknown board gets the error frame and a close. Export from `src/index.ts`. Commit.
+- [x] 4.1 `src/bin.ts`: `wboard-mcp` — `createWhiteboardMcpServer()` on a fresh in-memory service, connected to `StdioServerTransport`. No flags. Stdio smoke test: spawn the built bin, drive create→apply→get_events with a real MCP client over stdio, assert the round-trip.
+- [x] 4.2 `src/ws.ts`: `attachWebSocketPush(service, options: {port?: number; server?: http.Server; pollMs?: number})` → handle with `close()`. Client connects with `board_id` (required) + `cursor` (optional, default 0) as URL query params; stream each event as its own JSON frame — backlog after `cursor` first, then new events via a per-connection `getEvents` poller (default 250ms). Unknown board: one JSON error frame, then close. Poller stops on disconnect; `close()` tears everything down (tests must not leak handles). No changes to `@wboard/server`.
+- [x] 4.3 WS tests: real socket on an ephemeral port — backlog delivery from a cursor; an `apply` during an open subscription delivers the new frames; two subscribers both receive; unknown board gets the error frame and a close. Export from `src/index.ts`. Commit.
 
 ## Cluster 5 — corpus through the MCP facade
 
