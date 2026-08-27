@@ -26,6 +26,17 @@ OPS_ADAPTER: TypeAdapter[list[Op]] = TypeAdapter(list[Op])
 EVENTS_ADAPTER: TypeAdapter[list[Event]] = TypeAdapter(list[Event])
 
 
+def _reject_non_finite(token: str) -> float:
+    # JS JSON.parse throws on NaN/Infinity/-Infinity; Python's json.loads accepts
+    # them by default. A wire fixture may carry only strict JSON, so reject the
+    # constants rather than smuggle a non-finite number the wire cannot hold.
+    raise ValueError(f"non-finite JSON constant not allowed in corpus: {token}")
+
+
+def _load_strict_json(text: str) -> Any:
+    return json.loads(text, parse_constant=_reject_non_finite)
+
+
 def load_fixtures(directory: Path) -> list[tuple[str, dict[str, Any]]]:
     """Load every ``.json`` fixture in a corpus directory eagerly. Only
     ``.gitkeep`` is exempt; every other entry throws. A read or JSON error also
@@ -36,7 +47,7 @@ def load_fixtures(directory: Path) -> list[tuple[str, dict[str, Any]]]:
             continue
         if entry.name.startswith(".") or entry.is_dir() or not entry.name.endswith(".json"):
             raise ValueError(f"unexpected non-fixture entry in corpus: {entry}")
-        out.append((entry.name, json.loads(entry.read_text(encoding="utf8"))))
+        out.append((entry.name, _load_strict_json(entry.read_text(encoding="utf8"))))
     return out
 
 

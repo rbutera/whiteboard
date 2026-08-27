@@ -43,3 +43,12 @@ def test_root_layout_rejects_unexpected_entry(tmp_path: Path) -> None:
 def test_loads_a_valid_fixture(tmp_path: Path) -> None:
     (tmp_path / "a.json").write_text('{"ok": true}')
     assert load_fixtures(tmp_path) == [("a.json", {"ok": True})]
+
+
+@pytest.mark.parametrize("token", ["NaN", "Infinity", "-Infinity"])
+def test_non_finite_constants_rejected(tmp_path: Path, token: str) -> None:
+    # JSON.parse throws on these; the loader must too, not silently accept a
+    # non-finite float the wire cannot carry.
+    (tmp_path / "bad.json").write_text(f'{{"n": {token}}}')
+    with pytest.raises(ValueError, match="non-finite JSON constant"):
+        load_fixtures(tmp_path)
