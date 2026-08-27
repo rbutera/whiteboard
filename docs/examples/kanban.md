@@ -40,7 +40,7 @@ Authored with `defineSchema` and lowered to the wire with `compileToWire`:
 const schema = defineSchema({
   column: {
     description: "a kanban column",
-    attributes: { title: { description: "the column title", type: "string", required: true } },
+    attributes: { title: { description: "the column title", type: "string", required: false } },
   },
   card: {
     description: "a work item",

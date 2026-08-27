@@ -61,7 +61,7 @@ const schema = defineSchema({
   column: {
     description: "a kanban column",
     attributes: {
-      title: { description: "the column title", type: "string", required: true },
+      title: { description: "the column title", type: "string", required: false },
     },
   },
   card: {
