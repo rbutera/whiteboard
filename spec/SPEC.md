@@ -10,7 +10,9 @@ the protocol version defined here.
 
 > Status: A2 finalized the **Wire shape** and **Error codes** sections against
 > the shipped `@wboard/core` schemas; A3 finalized **Projection semantics** and
-> the **Reference server** requirement against the shipped `@wboard/server`. The
+> the **Reference server** requirement against the shipped `@wboard/server`; A4
+> finalized the **MCP facade** section against the shipped `@wboard/mcp`,
+> resolving the WebSocket live-update channel the Overview once deferred. The
 > locked shapes come from the decision tickets (rbutera/rennet#453–#456); no
 > section here may contradict those tickets, and no section remains in draft.
 
@@ -42,7 +44,8 @@ for rendered read-back):
 4. **describe** — board metadata and the protocol version the service implements.
 5. **events** — read the board's append-only event log by polling (`get_events`).
    (#453 also blesses a direct WebSocket for live updates; that is a facade-level
-   transport for a later workstream, not a wire shape this document defines.)
+   transport — the `@wboard/mcp` WS push channel described under **MCP facade** —
+   not a wire shape this document defines. Polling `get_events` stays the default.)
 
 Statelessness: the facade holds **zero per-connection state**. `board_id` is a
 plain minted string passed as a tool argument; tools are listed unconditionally;
@@ -263,3 +266,90 @@ what lets a host (e.g. Rennet) embed the reference server in-process and wrap it
 with its own persistence. In TypeScript this is `@wboard/server`'s
 `BoardService` over a `BoardStore` interface, defaulting to an in-memory store;
 any conforming twin exposes the equivalent seam.
+
+## MCP facade
+
+The **MCP facade** exposes the reference service as [Model Context
+Protocol](https://modelcontextprotocol.io) tools, so an agent authors a board
+through the same stateless calls a human does. It is a **thin translator, not a
+second service**: every tool call is exactly one `BoardService` call — bar
+`screenshot`, which pairs `getSchema` with the state projection before
+rendering — and the facade holds **zero board state and zero per-connection
+state**. Tools are listed unconditionally (#453). In TypeScript this is
+`@wboard/mcp`.
+
+### Tool-name binding
+
+MCP tools land in one flat list beside every other server's tools, so the bare
+protocol verbs (`create`, `apply`, …) are ambiguous. The facade binds each to a
+self-describing `verb_noun` name; these are the MCP names, while the short names
+above stay the transport-neutral protocol names.
+
+| protocol tool | MCP tool | service call |
+| ------------- | -------- | ------------ |
+| create | `create_board` | `createBoard(schema)` |
+| schema | `get_schema` | `getSchema(board_id)` |
+| apply | `apply_ops` | `apply(board_id, ops, actor)` |
+| describe | `describe_board` | `describe(board_id)` — carries `protocol_version` (the MCP handshake surface, #456) |
+| events | `get_events` | `getEvents(board_id, cursor)` |
+| screenshot | `screenshot` | `getSchema` + state projection → renderer |
+
+### Results
+
+Every tool returns its wire response **verbatim** as the result's
+`structuredContent`, with the same JSON serialized in a text content block
+(structured-text-first read-back, #454). `screenshot` additionally returns an
+image content block. Tool inputs reuse the `@wboard/core` request shapes
+unchanged; malformed inputs are rejected by the MCP SDK's own schema validation,
+the one standard MCP error path the facade leaves alone.
+
+### Errors
+
+The closed error enum surfaces **through tool results, not exceptions**. An
+`apply_ops` rejection (`{ ok: false, code, message }`) is a **normal**
+(non-error) result, because a rejection is protocol data the agent must read.
+The service's plain `Error` throws — an unknown `board_id` — **propagate** out
+of the tool handler; the pinned `@modelcontextprotocol/sdk` (`^1.30`) converts
+an uncaught tool-handler throw into an `isError: true` result carrying the
+message. That SDK behavior is the contract, so the facade adds no redundant
+mapping of its own; either way a protocol-semantics failure reaches the client
+as an `isError` tool result, never a raised MCP protocol error.
+
+### Attribution
+
+`apply_ops` extends the wire `apply` request with an optional `actor` string —
+a **facade-level input only** (`ApplyRequestSchema` is untouched). When omitted,
+the facade attributes its configured `defaultActor` (default `"agent"`).
+Attribution stays data, not authentication (see **Attribution** above).
+
+### Screenshot rendering
+
+The protocol carries no presentation, so no generic renderer can draw a host's
+true visual. Rendering is therefore **pluggable**: a host with real presentation
+semantics injects a `BoardRenderer` taking the schema and the projected elements
+and returning `{ mime_type, base64 }`. The facade ships a deterministic,
+dependency-free schematic SVG (`image/svg+xml`) as the default so the tool
+always answers — one card per element (id, kind, `data` key/values), grouped by
+kind, byte-identical for a given projection.
+
+### WebSocket push channel
+
+A live-update WebSocket channel streams events without polling. A client
+connects with `board_id` (required) and `cursor` (optional, default 0) as URL
+query parameters; the channel sends each event `{ seq, actor, op }` as its own
+JSON frame — the backlog after `cursor` first, then new events as they append.
+An unknown `board_id` yields one JSON error frame and a close.
+
+This channel is a **transport convenience, not a wire shape**: frames are the
+event shape defined above, the per-connection cursor is transport state (not
+board state), and the implementation is a thin per-connection poller over
+`get_events` that adds **no observer hook** to the reference service. Polling
+`get_events` by cursor remains the default live-update mechanism (#453).
+
+### Embeddability
+
+The facade is built over a **host-supplied `BoardService`** (default: a fresh
+in-memory one), the same in-process seam the reference server exposes — a host
+(e.g. Rennet) passes its own persistence-wrapped service and connects the
+returned server over any MCP transport: in-process for embedding, or the shipped
+`wboard-mcp` stdio executable (a fresh in-memory service over stdio, no flags).

@@ -5,8 +5,8 @@ A3 shipped a real board service, but only an embedder can reach it — no agent 
 ## What Changes
 
 - **New package `@wboard/mcp`** (`packages/mcp`), MIT, same toolchain (nx 23.1.1, TS 5.9.3, Vitest, zod `^4.4.3`). New dependencies: `@modelcontextprotocol/sdk` **`^1.30.0`** (the official SDK; its zod peer range `^3.25 || ^4.0` matches the workspace's zod 4) and `ws` **`^8.21.3`** for the push channel. Depends on `@wboard/core` + `@wboard/server` (workspace).
-- **`createWhiteboardMcpServer(options?)`** — the embeddable entry point. Returns `{ server: McpServer, service: BoardService }`. Options: `service?: BoardService` (default: a fresh in-memory one — B4 passes its own, persistence-wrapped), `renderer?: BoardRenderer`, `defaultActor?: string` (default `"agent"`). The facade holds **zero board state and zero per-connection state**: every tool call is one direct `BoardService` call; tools are listed unconditionally (#453). A host connects the returned server over any SDK transport — in-process via `InMemoryTransport` (how B4 and the tests drive it) or stdio.
-- **Six tools**, input shapes reused from `@wboard/core`'s Zod schemas (never restated), each mapping to one service call:
+- **`createWhiteboardMcpServer(options?)`** — the embeddable entry point. Returns `{ server: McpServer, service: BoardService }`. Options: `service?: BoardService` (default: a fresh in-memory one — B4 passes its own, persistence-wrapped), `renderer?: BoardRenderer`, `defaultActor?: string` (default `"agent"`). The facade holds **zero board state and zero per-connection state**: every tool call is one direct `BoardService` call (bar `screenshot`, which pairs `getSchema` + `getState`); tools are listed unconditionally (#453). A host connects the returned server over any SDK transport — in-process via `InMemoryTransport` (how B4 and the tests drive it) or stdio.
+- **Six tools**, input shapes reused from `@wboard/core`'s Zod schemas (never restated), each mapping to one service call (`screenshot` excepted — it pairs `getSchema` + `getState`):
 
   | MCP tool | input | service call | result (`structuredContent`) |
   | -------- | ----- | ------------ | ---------------------------- |
@@ -35,7 +35,7 @@ All tool-level tests drive a real MCP `Client` against the facade over the SDK's
 
 ### New Capabilities
 
-- `mcp-facade`: the stateless MCP tool surface — six tools, one service call each, wire responses as structured results, closed-enum errors through results.
+- `mcp-facade`: the stateless MCP tool surface — six tools, one service call each (`screenshot` pairs `getSchema` + `getState`), wire responses as structured results, closed-enum errors through results.
 - `facade-embedding`: `createWhiteboardMcpServer` over a host-supplied `BoardService` — the in-process seam Rennet B4 consumes — plus the `wboard-mcp` stdio bin.
 - `screenshot-rendering`: the pluggable `BoardRenderer` seam and the shipped schematic SVG fallback.
 - `ws-push`: the WebSocket live-update channel — poll-backed event streaming by cursor.

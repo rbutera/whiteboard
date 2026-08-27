@@ -1,0 +1,22 @@
+{
+  "name": "mcp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/mcp/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "command": "rm -rf dist && tsc -p tsconfig.build.json",
+      "options": { "cwd": "packages/mcp" }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json",
+      "options": { "cwd": "packages/mcp" }
+    },
+    "test": {
+      "command": "vitest run",
+      "options": { "cwd": "packages/mcp" },
+      "dependsOn": ["build", "^build"],
+      "inputs": ["default", "^production", "{workspaceRoot}/spec/fixtures/**/*"]
+    }
+  }
+}
