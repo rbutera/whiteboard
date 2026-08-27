@@ -36,11 +36,11 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 7 — verification (positive controls)
 
-- [ ] 7.1 Clean-checkout gate: `pnpm install`, `uv` present, `pnpm check` green with `python:{format,lint,typecheck,test}` visibly in the run.
-- [ ] 7.2 Positive control, corpus: flip one fixture's `expect` (accept→reject or swap a code) → the **Python** runners fail `pnpm check`; revert; `git status` clean. Evidence shown.
-- [ ] 7.3 Positive control, semantics: change the fold's shallow-merge to whole-`data` replace → a `project/` fixture fails in Python; revert. Evidence shown.
-- [ ] 7.4 Positive control, fail-not-skip: stray file in `spec/fixtures/` root and a nested dir in `accept/` → Python loaders throw; revert. Cache honesty: edit a fixture's content → `pnpm nx run python:test` re-executes (no stale hit); revert.
-- [ ] 7.5 Final clean `pnpm check`, commit, push, verify origin/main == HEAD, output `<promise>A6-COMPLETE</promise>`.
+- [x] 7.1 Clean-checkout gate: `pnpm install`, `uv` present, `pnpm check` green with `python:{format,lint,typecheck,test}` visibly in the run.
+- [x] 7.2 Positive control, corpus: flip one fixture's `expect` (accept→reject or swap a code) → the **Python** runners fail `pnpm check`; revert; `git status` clean. Evidence shown.
+- [x] 7.3 Positive control, semantics: change the fold's shallow-merge to whole-`data` replace → a `project/` fixture fails in Python; revert. Evidence shown.
+- [x] 7.4 Positive control, fail-not-skip: stray file in `spec/fixtures/` root and a nested dir in `accept/` → Python loaders throw; revert. Cache honesty: edit a fixture's content → `pnpm nx run python:test` re-executes (no stale hit); revert.
+- [x] 7.5 Final clean `pnpm check`, commit, push, verify origin/main == HEAD, output `<promise>A6-COMPLETE</promise>`.
 
 ## Notes
 
