@@ -24,7 +24,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 - [x] 4.1 Scaffold `examples/diagramming` (`@wboard-examples/diagramming`, private, same shape as 3.1); deps `@wboard/core` + `@wboard/mcp` (+ `@modelcontextprotocol/sdk` at the version `packages/mcp` pins) as needed. Commit.
 - [x] 4.2 `examples/diagramming/src/main.ts` — `run()` per the proposal: real MCP client over `InMemoryTransport` → `create_board` (schema `node`: `label` string required; `edge`: `from`/`to` element required, `label` string) → `apply_ops` a 3-node/2-edge graph → a deliberate `bad-ref` batch, assert the tool result is a NORMAL result `{ ok: false, code: "bad-ref" }` and a follow-up `get_events` shows nothing appended → fold and assert the graph → `screenshot`, assert `mime_type === "image/svg+xml"` and non-empty base64 → `describe_board`, assert `protocol_version === "0.1"`. One vitest test calls `run()`. `pnpm check` green. Commit.
-- [ ] 4.3 `docs/examples/diagramming.md`: walkthrough (element-ref integrity, rejection-as-data, screenshot read-back) linking the source. Root `README.md`: add the short Docs section (docs map + both examples). Commit.
+- [x] 4.3 `docs/examples/diagramming.md`: walkthrough (element-ref integrity, rejection-as-data, screenshot read-back) linking the source. Root `README.md`: add the short Docs section (docs map + both examples). Commit.
 
 ## Cluster 5 — verification (the a7 flip condition)
 
