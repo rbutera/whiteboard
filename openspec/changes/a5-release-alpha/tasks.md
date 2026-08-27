@@ -6,7 +6,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 - [x] 1.1 Each of `packages/{core,server,mcp}/package.json`: add `description`, `repository` (`{"type": "git", "url": "git+https://github.com/rbutera/whiteboard.git", "directory": "packages/<name>"}`), `homepage` (`https://github.com/rbutera/whiteboard#readme`), `publishConfig` (`{"access": "public", "tag": "alpha"}`). Leave `main`/`types`/`exports`/`files`/`license`/`bin` as they are. `pnpm check` green. Commit.
 - [x] 1.2 Per-package `LICENSE` (copy of root MIT, verbatim) and `README.md`: one paragraph on what the package is, `npm install @wboard/<name>@alpha`, a minimal real usage snippet (core: validate a batch; server: `BoardService` create→apply→getEvents; mcp: `createWhiteboardMcpServer` + `InMemoryTransport`), an alpha notice, and a link to `spec/SPEC.md` on GitHub as the authority. Root `README.md`: one install line noting the npm packages under the `alpha` dist-tag. Commit.
-- [ ] 1.3 Straggler sweep — run and record both greps, expected zero hits each:
+- [x] 1.3 Straggler sweep — run and record both greps, expected zero hits each:
   - `grep -rnE '@whtbrd|@whiteboard/' . --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.git --exclude-dir=openspec`
   - `grep -rniE 'whtbrd' . --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.git --exclude-dir=openspec`
   Any hit is a bug: fix it, re-run to zero. (Bare "whiteboard" words and `rbutera/whiteboard` are fine; `openspec/` packets are historical records and excluded.) Positive control: temporarily add a `@whtbrd` line to a scratch file in-repo, confirm the grep catches it, delete it. Evidence shown. Commit any fixes.
