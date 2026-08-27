@@ -32,7 +32,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 - [x] 5.2 **Positive control**: flip the kanban `run()` final-state assertion to a wrong expectation → `pnpm check` FAILS on the kanban test; revert → green. Show both runs' evidence.
 - [x] 5.3 **Published-package run**: in `$(mktemp -d)` outside the repo, `npm init -y && npm_config_min_release_age=0 npm install @wboard/core@alpha @wboard/server@alpha @wboard/mcp@alpha` (+ the MCP SDK for the client import), copy both examples' built `main.js` (or a tsx-run of `main.ts` with imports resolving to the installed packages — no workspace resolution), run both; exit 0 each. The `min_release_age=0` prefix is required on this machine (`~/.npmrc` sets `min-release-age=7`; `ENOVERSIONS` otherwise; pnpm ignores the key). Evidence shown.
 - [x] 5.4 Link integrity: every relative link in `docs/**/*.md` + root `README.md` resolves to an existing file (shell loop; no new dependency). Positive control: point one link at a nonexistent file, show the check catch it, revert. `git diff --stat main` shows `spec/` and `packages/*/src` untouched.
-- [ ] 5.5 Final: `pnpm check` green, all committed and pushed on `a7-docs-worked-examples` (`git rev-parse origin/a7-docs-worked-examples` == local HEAD), PR against `main` opened with the evidence in the body. Output `<promise>A7-COMPLETE</promise>`.
+- [x] 5.5 Final: `pnpm check` green, all committed and pushed on `a7-docs-worked-examples` (`git rev-parse origin/a7-docs-worked-examples` == local HEAD), PR against `main` opened with the evidence in the body. Output `<promise>A7-COMPLETE</promise>`.
 
 ## Notes
 
