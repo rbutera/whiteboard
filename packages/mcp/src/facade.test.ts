@@ -50,18 +50,55 @@ describe("facade", () => {
     return (res.structuredContent as { board_id: string }).board_id;
   }
 
-  it("lists the five protocol tools unconditionally", async () => {
+  it("lists all six tools unconditionally", async () => {
     const { tools } = await client.listTools();
-    const names = tools.map((t) => t.name).sort();
-    expect(names).toEqual(
-      expect.arrayContaining([
-        "apply_ops",
-        "create_board",
-        "describe_board",
-        "get_events",
-        "get_schema",
-      ]),
+    expect(tools.map((t) => t.name).sort()).toEqual([
+      "apply_ops",
+      "create_board",
+      "describe_board",
+      "get_events",
+      "get_schema",
+      "screenshot",
+    ]);
+  });
+
+  it("screenshot returns a valid base64 SVG plus an image content block", async () => {
+    const board = await newBoard();
+    await client.callTool({
+      name: "apply_ops",
+      arguments: { board_id: board, ops: [createOp("e1", "hi", "o1")] },
+    });
+    const res = await client.callTool({ name: "screenshot", arguments: { board_id: board } });
+    expect(res.isError).toBeFalsy();
+    const shot = res.structuredContent as { mime_type: string; base64: string };
+    expect(shot.mime_type).toBe("image/svg+xml");
+    const svg = Buffer.from(shot.base64, "base64").toString("utf8");
+    expect(svg).toContain("<svg");
+    expect(svg).toContain("e1");
+
+    const image = (res.content as { type: string; data?: string; mimeType?: string }[]).find(
+      (c) => c.type === "image",
     );
+    expect(image?.data).toBe(shot.base64);
+    expect(image?.mimeType).toBe("image/svg+xml");
+  });
+
+  it("screenshot uses an injected renderer verbatim", async () => {
+    const stub: import("./render.js").BoardRenderer = async () => ({
+      mime_type: "image/png",
+      base64: "STUB",
+    });
+    const { client: c2 } = await connect({ renderer: stub });
+    const res = await c2.callTool({ name: "create_board", arguments: { schema: NOTE_SCHEMA } });
+    const board = (res.structuredContent as { board_id: string }).board_id;
+    const shot = await c2.callTool({ name: "screenshot", arguments: { board_id: board } });
+    expect(shot.structuredContent).toEqual({ mime_type: "image/png", base64: "STUB" });
+  });
+
+  it("screenshot maps unknown board_id to an isError result", async () => {
+    const res = await client.callTool({ name: "screenshot", arguments: { board_id: "nope" } });
+    expect(res.isError).toBe(true);
+    expect(textOf(res)).toMatch(/unknown board/);
   });
 
   it("create -> schema -> describe round-trips with the core protocol version", async () => {

@@ -11,8 +11,8 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 ## Cluster 3 — screenshot
 
-- [ ] 3.1 `src/render.ts`: `BoardRenderer` type (`(schema, elements) => Promise<{mime_type, base64}>`) and `schematicRenderer` — deterministic, dependency-free SVG (`image/svg+xml`): one card per element (id, kind, `data` key/values, XML-escaped), grouped by kind; stable output for a given projection.
-- [ ] 3.2 Register the `screenshot` tool: `getSchema` + `getState`, render via `options.renderer ?? schematicRenderer`, return an MCP image content block plus the wire `ScreenshotResponse` as `structuredContent`. Tests: fallback renderer determinism + escaping; the tool returns valid base64 SVG for a populated board; an injected renderer is used verbatim; unknown board → `isError`. Export from `src/index.ts`. Commit.
+- [x] 3.1 `src/render.ts`: `BoardRenderer` type (`(schema, elements) => Promise<{mime_type, base64}>`) and `schematicRenderer` — deterministic, dependency-free SVG (`image/svg+xml`): one card per element (id, kind, `data` key/values, XML-escaped), grouped by kind; stable output for a given projection.
+- [x] 3.2 Register the `screenshot` tool: `getSchema` + `getState`, render via `options.renderer ?? schematicRenderer`, return an MCP image content block plus the wire `ScreenshotResponse` as `structuredContent`. Tests: fallback renderer determinism + escaping; the tool returns valid base64 SVG for a populated board; an injected renderer is used verbatim; unknown board → `isError`. Export from `src/index.ts`. Commit.
 
 ## Cluster 4 — transports: stdio bin + WebSocket push
 

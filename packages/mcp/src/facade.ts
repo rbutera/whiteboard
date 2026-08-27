@@ -4,20 +4,13 @@ import {
   DescribeRequestSchema,
   EventsRequestSchema,
   SchemaRequestSchema,
+  ScreenshotRequestSchema,
 } from "@wboard/core";
 import { BoardService } from "@wboard/server";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-
-/**
- * The pluggable screenshot renderer seam (see `render.ts`). Declared here so the
- * facade options type can name it without importing the renderer implementation.
- */
-export type BoardRenderer = (
-  schema: import("@wboard/core").WireSchema,
-  elements: ReadonlyMap<string, import("@wboard/core").Element>,
-) => Promise<{ mime_type: string; base64: string }>;
+import { type BoardRenderer, schematicRenderer } from "./render.js";
 
 export interface WhiteboardMcpOptions {
   /** The board service the tools call. Default: a fresh in-memory `BoardService`.
@@ -69,6 +62,7 @@ function errorResult(err: unknown): CallToolResult {
 export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): WhiteboardMcp {
   const service = options.service ?? new BoardService();
   const defaultActor = options.defaultActor ?? "agent";
+  const renderer = options.renderer ?? schematicRenderer;
 
   const server = new McpServer({ name: "wboard-mcp", version: "0.0.0" });
 
@@ -144,6 +138,33 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
     async ({ board_id, cursor }) => {
       try {
         return wireResult(await service.getEvents(board_id, cursor));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "screenshot",
+    {
+      description:
+        "A rendered image of the board's current state (base64 bytes + mime type), plus the same image as an MCP image content block.",
+      inputSchema: ScreenshotRequestSchema.shape,
+    },
+    async ({ board_id }) => {
+      try {
+        const [schema, elements] = await Promise.all([
+          service.getSchema(board_id),
+          service.getState(board_id),
+        ]);
+        const shot = await renderer(schema, elements);
+        return {
+          content: [
+            { type: "image", data: shot.base64, mimeType: shot.mime_type },
+            { type: "text", text: JSON.stringify(shot) },
+          ],
+          structuredContent: shot as unknown as Record<string, unknown>,
+        };
       } catch (err) {
         return errorResult(err);
       }

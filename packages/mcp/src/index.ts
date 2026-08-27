@@ -9,8 +9,8 @@ export const IMPLEMENTED_PROTOCOL_VERSION = PROTOCOL_VERSION;
 
 export { PROTOCOL_VERSION };
 export {
-  type BoardRenderer,
   createWhiteboardMcpServer,
   type WhiteboardMcp,
   type WhiteboardMcpOptions,
 } from "./facade.js";
+export { type BoardRenderer, schematicRenderer } from "./render.js";
