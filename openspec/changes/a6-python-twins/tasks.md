@@ -2,7 +2,7 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 1 — package scaffold + nx wiring
 
-- [x] 1.1 `packages/python/`: `pyproject.toml` (name `wboard`, version `0.1.0a0`, `requires-python = ">=3.12"`, deps `pydantic>=2,<3`; dev deps `pytest>=8,<9`, `mypy>=1,<2`, `ruff` exact-pinned), `.python-version` = 3.13, `src/wboard/{__init__.py, py.typed}` exporting `PROTOCOL_VERSION = "0.1"`, one trivial test, `LICENSE` (copy of root MIT), stub `README.md`. `uv sync` produces `uv.lock`; commit the lock.
+- [x] 1.1 `packages/python/`: `pyproject.toml` (name `wboard`, version `0.1.0a0`, `requires-python = ">=3.12"`, deps `pydantic>=2.11,<3`; dev deps `pytest>=8,<9`, `mypy>=1,<2`, `ruff` exact-pinned), `.python-version` = 3.13, `src/wboard/{__init__.py, py.typed}` exporting `PROTOCOL_VERSION = "0.1"`, one trivial test, `LICENSE` (copy of root MIT), stub `README.md`. `uv sync` produces `uv.lock`; commit the lock.
 - [x] 1.2 `packages/python/project.json`: nx project `python` with run-commands targets `format` (`uv run ruff format --check .`), `lint` (`uv run ruff check .`), `typecheck` (`uv run mypy src tests`), `test` (`uv run pytest`), all `cwd: packages/python`, cacheable, no outputs. Named input `pythonFiles` = `{projectRoot}/**/*` excluding `.venv/`, `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`; `test` inputs additionally `{workspaceRoot}/spec/fixtures/**`. Verify with `pnpm nx show project python` that all four targets and their inputs are as declared.
 - [x] 1.3 Ensure `.gitignore` covers `.venv/` and the Python tool caches; `pnpm check` runs the python targets and stays green. Add the setup-uv step (pinned) to `.github/workflows/ci.yml`. Commit.
 

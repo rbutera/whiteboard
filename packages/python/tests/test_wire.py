@@ -191,11 +191,11 @@ def test_every_serialization_path_agrees() -> None:
     # All four dump calls must emit the same wire JSON: unset optionals omitted
     # (never null/false/0), aliases used. serialize_by_alias needs pydantic 2.11+.
     attr_base = {"name": "n", "description": "d", "type": "string", "required": False}
-    for dumped in _all_dump_paths(Attribute.model_validate(attr_base)):  # many unset
-        assert dumped == attr_base  # no "many": false anywhere
+    for dumped in _all_dump_paths(Attribute.model_validate(attr_base)):
+        assert dumped == attr_base
 
-    for dumped in _all_dump_paths(EventsRequest.model_validate({"board_id": "b"})):  # cursor unset
-        assert "cursor" not in dumped  # no "cursor": 0 anywhere
+    for dumped in _all_dump_paths(EventsRequest.model_validate({"board_id": "b"})):
+        assert "cursor" not in dumped
 
     for dumped in _all_dump_paths(CreateRequest.model_validate({"schema": {"kinds": []}})):
-        assert "schema" in dumped and "schema_" not in dumped  # aliased on every path
+        assert "schema" in dumped and "schema_" not in dumped
