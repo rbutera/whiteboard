@@ -44,9 +44,10 @@ red.
 
 Two versions travel with the protocol, and they move independently:
 
-- **Package semver** — each `@wboard/*` npm package's version, currently
-  `0.1.0-alpha.2`. This bumps on every release: bug fixes, new APIs, packaging
-  changes. It is an npm concern.
+- **Package semver** — each `@wboard/*` npm package's version, published on the
+  `alpha` dist-tag as `0.1.0-alpha.N`. This bumps on every release: bug fixes,
+  new APIs, packaging changes. It is an npm concern — `npm install
+  @wboard/core@alpha` always resolves the latest.
 - **Protocol version** — the version of the wire contract itself, currently
   `"0.1"`, owned by SPEC.md and exported as `PROTOCOL_VERSION` from
   `@wboard/core`. A service surfaces it through the MCP `describe_board`
