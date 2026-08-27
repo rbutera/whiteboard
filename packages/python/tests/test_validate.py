@@ -2,6 +2,7 @@
 the semantic traps (extras pass-through, within-batch mint, partial-merge typing,
 create-delete-create, and the ``bool``-is-not-a-``number`` Python trap)."""
 
+import json
 from typing import Any
 
 from pydantic import TypeAdapter
@@ -123,6 +124,16 @@ def test_true_is_not_a_number() -> None:
     # Python-only trap: isinstance(True, int) is True. A bool must fail number.
     schema = _schema(_attr("count", "number"))
     _expect_code(schema, _ops(_create("o1", "x", {"count": True})), "wrong-type")
+
+
+def test_overflowing_int_is_not_a_number() -> None:
+    # JS JSON.parse turns a 400-digit number into Infinity → Number.isFinite
+    # rejects. A Python int of any size must match: it overflows float64 → not a
+    # finite number → wrong-type. The value arrives exactly as JSON parses it.
+    schema = _schema(_attr("count", "number"))
+    huge = json.loads("1" + "0" * 400)  # a 401-digit int
+    ops = _ops(_create("o1", "x", {"count": huge}))
+    _expect_code(schema, ops, "wrong-type")
 
 
 def test_number_accepts_int_and_float() -> None:

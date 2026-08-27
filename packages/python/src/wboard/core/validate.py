@@ -33,7 +33,13 @@ def _is_number(value: object) -> bool:
     if isinstance(value, bool):
         return False
     if isinstance(value, int):
-        return True
+        # JS turns a huge JSON number into Infinity, which Number.isFinite
+        # rejects; a Python int of any magnitude would pass. Match JS: a value
+        # that overflows float64 is not a finite number.
+        try:
+            return math.isfinite(float(value))
+        except OverflowError:
+            return False
     if isinstance(value, float):
         return math.isfinite(value)
     return False
