@@ -20,14 +20,14 @@ const schema: WireSchema = {
   ],
 };
 
-const svc = new BoardService();
-const board = await svc.createBoard(schema);
+const service = new BoardService();
+const boardId = await service.createBoard(schema);
 
-await svc.apply(board, [
+await service.apply(boardId, [
   { op: "create", op_id: "o1", element: { id: "x", kind: "note", data: { text: "hi" } } },
 ], "alice");
 
-const { events } = await svc.getEvents(board);
+const { events } = await service.getEvents(boardId);
 const state = project(events).elements;
 console.log(state.get("x")); // { id: "x", kind: "note", data: { text: "hi" } }
 ```
