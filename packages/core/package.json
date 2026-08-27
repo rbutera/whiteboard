@@ -1,6 +1,6 @@
 {
   "name": "@wboard/core",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Authoring and wire-contract core for the whiteboard protocol: element shapes, host-schema kit, and Zod-backed wire validation.",
   "license": "MIT",
   "repository": {
