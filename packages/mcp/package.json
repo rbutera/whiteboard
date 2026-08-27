@@ -30,6 +30,7 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@types/node": "^22.0.0",
     "@wboard/core": "0.1.0-alpha.0",
     "@wboard/server": "0.1.0-alpha.0",
     "ws": "^8.21.3"
