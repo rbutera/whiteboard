@@ -11,40 +11,24 @@ its own — the schema is where a `note`, a `card`, or a `node` gets defined.
 ## Kinds and attributes
 
 A schema is a set of **kinds**. Each kind has an id, an agent-facing
-description, and a list of **attributes**. An attribute is a name, a
-description, a type, whether it is `required`, and optionally `many`:
+description, and a list of **attributes**; an attribute is a name, a
+description, a type, whether it is `required`, and optionally `many`. That
+declared shape is the **wire schema** a board is created with, defined
+normatively in
+[`spec/SPEC.md` §Wire host schema](../../spec/SPEC.md#wire-host-schema). You
+rarely write it by hand — the authoring kit below does.
 
-```ts
-{
-  kinds: [
-    {
-      id: "card",
-      description: "a work item",
-      attributes: [
-        { name: "title", description: "the card title", type: "string", required: true },
-        { name: "column", description: "the column it sits in", type: "element", required: true },
-        { name: "tags", description: "labels", type: "string", required: false, many: true },
-      ],
-    },
-  ],
-}
-```
+## Attribute types
 
-That is the **wire schema** — the JSON a board is created with. You rarely write
-it by hand; the authoring kit below does.
+An attribute's `type` is one of the five the schema language defines;
+[`spec/SPEC.md` §Host schema](../../spec/SPEC.md#host-schema) is the normative
+list. Two carry nuance worth calling out here:
 
-## The five attribute types
-
-| type | value | notes |
-| ---- | ----- | ----- |
-| `string` | a string | |
-| `number` | a finite number | non-finite (`NaN`, `±Infinity`) can't cross JSON, so validation requires finiteness |
-| `boolean` | a boolean | |
-| `element` | **another element's id** (a string) | an id-first reference; see below |
-| `json` | any opaque JSON value | the protocol does not shape it |
-
-`many: true` makes the value a **list** of that type — `tags` above is a
-`string[]`. A `many` attribute is validated as a list of the base type.
+- **`element`** is an id-first reference to another element — see below.
+- **`many: true`** makes the value a **list** of the base type (a `string`
+  `many` attribute is a `string[]`), validated as a list. A `number` value must
+  be finite: `NaN` and `±Infinity` can't cross JSON, so validation requires
+  finiteness.
 
 ## `element` refs
 
@@ -106,12 +90,12 @@ wire and defers to `validate`.
 ## All-or-nothing rejection
 
 Validation is **all-or-nothing**: an invalid batch changes nothing and comes
-back with exactly one code from the **closed error enum**. The six codes
-(`unknown-kind`, `missing-required`, `wrong-type`, `bad-ref`,
-`unknown-element`, `duplicate-id`) and what each means are defined in
-[`spec/SPEC.md` §Error codes](../../spec/SPEC.md#error-codes) — that table is
-normative, so it lives there, not here. Adding or renaming a code is a
-protocol-version change.
+back with exactly one code from the **closed error enum**. For example, the
+`bad-ref` above is one such code, and a card created without its required
+`title` comes back `missing-required`. The full enum and each code's meaning
+are normative in [`spec/SPEC.md` §Error codes](../../spec/SPEC.md#error-codes) —
+they live there, not here. Adding or renaming a code is a protocol-version
+change.
 
 See the [kanban example](../examples/kanban.md) for a schema like this one
 driven end to end.

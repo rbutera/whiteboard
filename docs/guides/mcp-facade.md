@@ -43,11 +43,10 @@ npx wboard-mcp
 
 MCP tools land in one flat list beside every other server's, so the bare
 protocol verbs would be ambiguous. Each is bound to a self-describing
-`verb_noun` name. The mapping (`create` → `create_board`, `apply` →
-`apply_ops`, and so on) is the table in
-[`spec/SPEC.md` §Tool-name binding](../../spec/SPEC.md#tool-name-binding). The
-six tools — `create_board`, `get_schema`, `apply_ops`, `describe_board`,
-`get_events`, `screenshot` — are listed **unconditionally**.
+`verb_noun` name — `apply`, for instance, becomes `apply_ops`. The full mapping
+is normative in
+[`spec/SPEC.md` §Tool-name binding](../../spec/SPEC.md#tool-name-binding), and
+every tool is listed **unconditionally** — none is hidden behind state.
 
 Every tool returns its wire response **verbatim** as the result's
 `structuredContent`, with the same JSON in a text content block:
