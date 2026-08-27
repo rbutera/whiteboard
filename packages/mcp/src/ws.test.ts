@@ -54,6 +54,19 @@ function collect(
   });
 }
 
+// Compile-time contract: exactly one of port/server. These functions are never
+// called — typecheck (tsc) is the assertion; @ts-expect-error fails the build if
+// the option shape ever stops rejecting them.
+function _optionTypeProbes(service: BoardService, server: Server) {
+  // @ts-expect-error neither port nor server supplied
+  attachWebSocketPush(service, {});
+  // @ts-expect-error port and server are mutually exclusive
+  attachWebSocketPush(service, { server, port: 1 });
+  attachWebSocketPush(service, { port: 1 });
+  attachWebSocketPush(service, { server });
+}
+void _optionTypeProbes;
+
 describe("attachWebSocketPush", () => {
   let handle: WebSocketPushHandle | undefined;
   let http: Server | undefined;

@@ -2,14 +2,18 @@ import type { Server } from "node:http";
 import type { BoardService } from "@wboard/server";
 import { WebSocketServer } from "ws";
 
-export interface WebSocketPushOptions {
-  /** Listen on this port (ws owns the created http server, closed by `close()`). */
-  port?: number;
-  /** Attach to an existing http server instead (the caller owns its lifecycle). */
-  server?: Server;
+/**
+ * Exactly one of `port` or `server` — the union makes `{}` (neither, which ws
+ * would throw on at runtime) and both-supplied (which silently ignores `port`)
+ * compile errors.
+ */
+export type WebSocketPushOptions = (
+  | { port: number; server?: never }
+  | { server: Server; port?: never }
+) & {
   /** Per-connection poll interval in ms. Default 250. */
   pollMs?: number;
-}
+};
 
 export interface WebSocketPushHandle {
   /** The bound port (only meaningful when `port`/`0` was used, not `server`). */
