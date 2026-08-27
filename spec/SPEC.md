@@ -251,6 +251,12 @@ library** with **pluggable persistence**:
   are facade concerns layered on top, never a prerequisite for embedding.
 - State access is a **library API** (read the projection directly); it is not a
   wire tool. Wire clients fold `events` themselves.
+- Concurrent `apply` calls to the **same board** MUST be serialized so the
+  read-log → validate → append window cannot interleave (otherwise two applies
+  carrying the same `op_id` could both pass dedup and each append an event). The
+  service is the single writer, so this is an in-process guarantee; it does not
+  require compare-and-set in the storage interface. A multi-process deployment
+  that shares a store across writers needs store-level CAS instead.
 
 This embeddability-with-pluggable-persistence requirement is load-bearing: it is
 what lets a host (e.g. Rennet) embed the reference server in-process and wrap it

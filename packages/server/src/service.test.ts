@@ -131,6 +131,20 @@ describe("BoardService", () => {
     expect(await svc.getState(board)).toEqual(rebuilt);
   });
 
+  it("serializes concurrent same-op_id applies: exactly one event appends", async () => {
+    const svc = new BoardService();
+    const board = await svc.createBoard(SCHEMA);
+
+    const [a, b] = await Promise.all([
+      svc.apply(board, [create("dup", "x")], "alice"),
+      svc.apply(board, [create("dup", "x")], "bob"),
+    ]);
+
+    // One apply wins and appends; the other dedups to a no-op — never two events.
+    expect([a, b]).toContainEqual({ ok: true });
+    expect((await svc.getEvents(board)).events.length).toBe(1);
+  });
+
   it("throws a plain Error for an unknown board", async () => {
     const svc = new BoardService();
     await expect(svc.getSchema("nope")).rejects.toThrow(/unknown board/);

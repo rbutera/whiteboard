@@ -24,6 +24,12 @@ import { type BoardStore, InMemoryBoardStore } from "./store.js";
  */
 export class BoardService {
   readonly #store: BoardStore;
+  /** Per-board apply serialization — the tail of each board's promise chain, so
+   * concurrent `apply` calls to the same board run one at a time (read-log →
+   * validate → append is not interleaved). Deleted when a board's chain drains.
+   * ponytail: in-process serialization; a multi-process deployment needs
+   * store-level CAS on append, not this. */
+  readonly #applyChains = new Map<string, Promise<unknown>>();
 
   constructor(store: BoardStore = new InMemoryBoardStore()) {
     this.#store = store;
@@ -80,9 +86,26 @@ export class BoardService {
    *    all-or-nothing; a rejection is returned verbatim and appends nothing.
    * 3. **append** — one event per surviving op, atomically, actor recorded.
    *
+   * Concurrent applies to the same board are **serialized** (a per-board promise
+   * chain) so the read-log → validate → append window cannot interleave — the
+   * service is the single writer in the embeddable model, so it does not need
+   * store-level compare-and-set.
+   *
    * Throws if the board is unknown.
    */
-  async apply(boardId: string, ops: readonly Op[], actor: string): Promise<ApplyResponse> {
+  apply(boardId: string, ops: readonly Op[], actor: string): Promise<ApplyResponse> {
+    const prior = this.#applyChains.get(boardId) ?? Promise.resolve();
+    const run = prior.then(() => this.#applyLocked(boardId, ops, actor));
+    // The chain tail must never reject, or a failed apply would wedge the board.
+    const tail = run.catch(() => {});
+    this.#applyChains.set(boardId, tail);
+    void tail.then(() => {
+      if (this.#applyChains.get(boardId) === tail) this.#applyChains.delete(boardId);
+    });
+    return run;
+  }
+
+  async #applyLocked(boardId: string, ops: readonly Op[], actor: string): Promise<ApplyResponse> {
     const schema = await this.#requireSchema(boardId);
     const log = await this.#store.getEvents(boardId, 0);
 
