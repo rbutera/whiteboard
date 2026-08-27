@@ -1,6 +1,7 @@
 # Example: kanban (the library path)
 
-> Normative source: [`spec/SPEC.md`](../../spec/SPEC.md). The runnable truth is
+> Normative source: [`spec/SPEC.md` §Projection semantics](../../spec/SPEC.md#projection-semantics).
+> The runnable truth is
 > [`examples/kanban/src/main.ts`](../../examples/kanban/src/main.ts) — the fences
 > below follow it; when they differ, the source is right.
 

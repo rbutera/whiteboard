@@ -1,7 +1,7 @@
 # Quickstart
 
-> Normative source: [`spec/SPEC.md`](../spec/SPEC.md). This page shows the
-> shipped APIs; on any conflict with the wire contract, SPEC wins.
+> Normative source: [`spec/SPEC.md` §Overview](../spec/SPEC.md#overview--the-five-tools).
+> This page shows the shipped APIs; on any conflict with the wire contract, SPEC wins.
 
 From nothing to a board you author both ways — as an embedded library and
 through the MCP facade — in one sitting.

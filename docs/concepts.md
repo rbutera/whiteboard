@@ -1,7 +1,7 @@
 # Concepts
 
-> Normative source: [`spec/SPEC.md`](../spec/SPEC.md). Every guarantee below
-> links to the SPEC section that defines it; on conflict, SPEC wins.
+> Normative source: [`spec/SPEC.md` §Projection semantics](../spec/SPEC.md#projection-semantics).
+> Every guarantee below links to the SPEC section that defines it; on conflict, SPEC wins.
 
 Four ideas carry the whole protocol. Learn them once here.
 

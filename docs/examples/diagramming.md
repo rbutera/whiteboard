@@ -1,6 +1,7 @@
 # Example: diagramming (the MCP path)
 
-> Normative source: [`spec/SPEC.md`](../../spec/SPEC.md). The runnable truth is
+> Normative source: [`spec/SPEC.md` §MCP facade](../../spec/SPEC.md#mcp-facade).
+> The runnable truth is
 > [`examples/diagramming/src/main.ts`](../../examples/diagramming/src/main.ts) —
 > the fences below follow it; when they differ, the source is right.
 

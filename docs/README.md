@@ -1,5 +1,8 @@
 # Whiteboard docs
 
+> Normative source: [`spec/SPEC.md` §Protocol version](../spec/SPEC.md#protocol-version).
+> These pages explain and show; on any conflict, SPEC wins.
+
 These pages **explain and show** the whiteboard protocol. They are not the
 authority: [`spec/SPEC.md`](../spec/SPEC.md) is the single normative source for
 the wire contract, and on any conflict **SPEC wins**. Every page here carries a
