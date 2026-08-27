@@ -16,7 +16,7 @@ The loop rules from `openspec/changes/a1-bootstrap-monorepo/context.md` apply ve
 
 ## Objective
 
-Ship `@wboard/mcp`: a **stateless MCP facade** over `@wboard/server`'s `BoardService`. Each MCP tool call translates to one service call; the facade holds **zero board state** and zero per-connection state. It exposes the five protocol tools plus `screenshot`, is **embeddable in-process** (Rennet's B4 consumes it that way) as well as runnable over **stdio**, and ships the **WebSocket push channel** #453 blessed (scoped to this workstream by the A2 review rewording of SPEC.md's Overview). Finish by writing SPEC.md's **MCP facade** section as normative text that reads true against the shipped code.
+Ship `@wboard/mcp`: a **stateless MCP facade** over `@wboard/server`'s `BoardService`. Each MCP tool call translates to one service call (bar `screenshot`, which pairs `getSchema` + `getState`); the facade holds **zero board state** and zero per-connection state. It exposes the five protocol tools plus `screenshot`, is **embeddable in-process** (Rennet's B4 consumes it that way) as well as runnable over **stdio**, and ships the **WebSocket push channel** #453 blessed (scoped to this workstream by the A2 review rewording of SPEC.md's Overview). Finish by writing SPEC.md's **MCP facade** section as normative text that reads true against the shipped code.
 
 ## What A3 already provides (the surface you wrap)
 
@@ -55,7 +55,7 @@ Read `proposal.md` for rationale. In brief: MCP SDK `@modelcontextprotocol/sdk` 
 
 1. From a clean checkout: `pnpm install && pnpm check` — green, all targets across all three packages.
 2. **Tool loop**: in-process MCP client ↔ facade tests cover every tool; deliberately break the `apply_ops` → `service.apply` mapping (e.g. drop the actor, or return `{ok: true}` unconditionally) → tests FAIL; revert. Evidence shown.
-3. **Error mapping**: an unknown `board_id` reaches the client as an `isError: true` tool result, never a thrown MCP protocol error — shown failing when the facade is made to let the throw propagate; revert.
+3. **Error mapping**: an unknown `board_id` reaches the client as an `isError: true` tool result, never a thrown MCP protocol error. The throw propagates and the pinned `@modelcontextprotocol/sdk ^1.30` does the wrapping (`server/mcp.js` `createToolError`); the facade adds no catch of its own. A behavior test pins this observable contract and fails if an SDK upgrade changes the wrapping.
 4. **Corpus through MCP**: the whole corpus (A2 accept/reject + A3 project fixtures) runs end-to-end through the MCP client; flip one fixture's expectation → the MCP corpus runner FAILS `pnpm check`; revert. Evidence shown.
 5. **WS push**: an `apply` during an open subscription delivers the new event frames; disable the poller → the test FAILS; revert.
 6. **Stdio smoke**: spawn the `wboard-mcp` bin, drive create→apply→get_events over stdio with a real MCP client, assert the round-trip.
