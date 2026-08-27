@@ -57,9 +57,12 @@ const service = new BoardService(new MyDurableStore());
 ```
 
 `append` must assign each event a **contiguous `seq` starting at 1** and land a
-batch's events atomically — all or none. Reads never throw on an absent board;
-they return an empty list. A store must not alias caller memory: copy on write,
-and hand back copies on read, so the log stays the single source of truth. See
+batch's events atomically — all or none. The two reads answer an absent board
+differently, and neither throws: `getSchema` returns `undefined` for an unknown
+board, while `getEvents` returns an empty list. (`BoardService` turns that
+`undefined` schema into the "unknown board" `Error` its own methods throw.) A
+store must not alias caller memory: copy on write, and hand back copies on read,
+so the log stays the single source of truth. See
 [`spec/SPEC.md` §Reference server](../../spec/SPEC.md#reference-server).
 
 ## Same-board serialization
