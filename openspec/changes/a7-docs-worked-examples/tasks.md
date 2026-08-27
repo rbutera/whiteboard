@@ -10,7 +10,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 ## Cluster 2 — guides
 
-- [ ] 2.1 `docs/guides/host-schemas.md`: kinds and the five attribute types, `element` refs, `many`, required vs undeclared-passthrough, `defineSchema`/`compileToWire` authoring kit, all-or-nothing rejection with a link to SPEC.md §Error codes (do not reproduce the enum table). Commit.
+- [x] 2.1 `docs/guides/host-schemas.md`: kinds and the five attribute types, `element` refs, `many`, required vs undeclared-passthrough, `defineSchema`/`compileToWire` authoring kit, all-or-nothing rejection with a link to SPEC.md §Error codes (do not reproduce the enum table). Commit.
 - [ ] 2.2 `docs/guides/embedding-the-server.md`: in-process `BoardService`, the `BoardStore` interface and pluggable persistence (sketch a custom store's shape, link SPEC.md §Reference server), same-board serialization guarantee, library-API state read vs wire-side `events` folding. Commit.
 - [ ] 2.3 `docs/guides/mcp-facade.md`: `wboard-mcp` stdio bin, in-process embedding over a host-supplied service, `verb_noun` binding (link SPEC.md §Tool-name binding for the table), rejections-as-normal-results vs throws-as-`isError`, `get_events` polling vs the WS push channel, `BoardRenderer` plug + schematic SVG default. `pnpm check` green. Commit.
 
