@@ -78,34 +78,36 @@ const state = await service.getState(boardId); // same ReadonlyMap
 
 ## The same board through MCP
 
-The MCP facade exposes the identical service as Model Context Protocol tools,
-so an agent authors a board through the same stateless calls. Connect a real
-MCP client over the in-process `InMemoryTransport`:
+The MCP facade exposes the **same** service as Model Context Protocol tools, so
+an agent authors the very board you created above through the same stateless
+calls. Wrap the existing `service` — passing it is what makes `facade.service`
+the one holding `boardId` — and connect a real MCP client over the in-process
+`InMemoryTransport`:
 
 ```ts
 import { createWhiteboardMcpServer } from "@wboard/mcp";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 
-const facade = createWhiteboardMcpServer();
+// Wrap the SAME service, so the tools act on the board created above.
+const facade = createWhiteboardMcpServer({ service });
 const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 const client = new Client({ name: "quickstart", version: "0" });
 await facade.server.connect(serverTransport);
 await client.connect(clientTransport);
 
-const created = await client.callTool({
-  name: "create_board",
-  arguments: { schema: compileToWire(schema) },
-});
-const board = (created.structuredContent as { board_id: string }).board_id;
-
+// Author the original board over MCP. A fresh op_id — o1 is already applied, so
+// reusing it would dedup to a no-op.
 await client.callTool({
   name: "apply_ops",
   arguments: {
-    board_id: board,
-    ops: [{ op: "create", op_id: "o1", element: { id: "n1", kind: "note", data: { text: "hi" } } }],
+    board_id: boardId,
+    ops: [{ op: "create", op_id: "o2", element: { id: "n2", kind: "note", data: { text: "hi from MCP" } } }],
   },
 });
+
+// The op landed on the original board — getState now holds both notes.
+const both = await service.getState(boardId); // Map { n1, n2 }
 ```
 
 The MCP tool names are `verb_noun` (`create_board`, `apply_ops`, `get_events`,
