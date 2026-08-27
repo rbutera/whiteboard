@@ -9,4 +9,6 @@ A minimal, host-agnostic shared-canvas protocol: an append-only attributed event
 
 Status: pre-alpha, under active build.
 
+The packages are on npm under the `alpha` dist-tag: `npm install @wboard/core@alpha @wboard/server@alpha @wboard/mcp@alpha`.
+
 MIT licensed.

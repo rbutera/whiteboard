@@ -1,3 +1,4 @@
+/// <reference types="node" preserve="true" />
 import type { Server } from "node:http";
 import type { BoardService } from "@wboard/server";
 import { WebSocketServer } from "ws";
