@@ -14,7 +14,8 @@
     },
     "test": {
       "command": "vitest run",
-      "options": { "cwd": "packages/server" }
+      "options": { "cwd": "packages/server" },
+      "inputs": ["default", "^production", "{workspaceRoot}/spec/fixtures/**/*"]
     }
   }
 }
