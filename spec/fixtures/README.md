@@ -2,7 +2,7 @@
 
 The shared conformance corpus for the whiteboard protocol. It is **not a
 package** — it is language-neutral JSON that every implementation runs. Today
-`@whtbrd/core` runs the whole corpus in CI; the reference server (A3) and the
+`@wboard/core` runs the whole corpus in CI; the reference server (A3) and the
 Python twins (A6) must run this same corpus to claim conformance. Passing it is
 what "implements protocol version X" means.
 
@@ -11,8 +11,8 @@ what "implements protocol version X" means.
 > within-batch mint-then-reference, multi-op batches, and one reject fixture per
 > error code. A3 added `project/` — the log→projection cases (see Scope) — so
 > the corpus now covers **server semantics**, not just validation. Two runners
-> run it: `@whtbrd/core` (`packages/core/src/corpus.test.ts`) drives every
-> `accept/`+`reject/` fixture through `validate()`, and `@whtbrd/server`
+> run it: `@wboard/core` (`packages/core/src/corpus.test.ts`) drives every
+> `accept/`+`reject/` fixture through `validate()`, and `@wboard/server`
 > (`packages/server/src/corpus.test.ts`) runs the **whole** corpus — validate
 > cases *and* projection cases — end-to-end through the reference service. The
 > Python twins (A6) run this same corpus.

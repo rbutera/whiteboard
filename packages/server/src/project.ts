@@ -1,4 +1,4 @@
-import type { Element, Event } from "@whtbrd/core";
+import type { Element, Event } from "@wboard/core";
 
 /**
  * The projection of an event log: the current elements and their kinds. State

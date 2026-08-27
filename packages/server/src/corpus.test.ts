@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ElementSchema, EventSchema, OpsSchema, WireSchema } from "@whtbrd/core";
+import { ElementSchema, EventSchema, OpsSchema, WireSchema } from "@wboard/core";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { BoardService } from "./service.js";
@@ -20,7 +20,7 @@ import { BoardService } from "./service.js";
  *   `expect.state` and `getEvents` against `expect.events`.
  *
  * A malformed or misplaced fixture throws at load time — it is never silently
- * skipped (mirrors `@whtbrd/core`'s runner). The Python twin (A6) runs this
+ * skipped (mirrors `@wboard/core`'s runner). The Python twin (A6) runs this
  * same corpus against its own server.
  */
 

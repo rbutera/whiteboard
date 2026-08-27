@@ -2,7 +2,7 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 1 — wire primitives
 
-- [x] 1.1 Add `zod` to `@whtbrd/core` (runtime dependency, current stable major). `pnpm check` stays green.
+- [x] 1.1 Add `zod` to `@wboard/core` (runtime dependency, current stable major). `pnpm check` stays green.
 - [x] 1.2 `src/wire/element.ts`: Zod schema + inferred type for the element `{id: string, kind: string, data: Record<string, unknown>}`. Test: valid element parses; missing `id`/`kind` fails.
 - [x] 1.3 `src/wire/schema.ts`: Zod schemas + types for the wire host schema — attribute `{name, description, type: "string"|"number"|"boolean"|"element"|"json", required: boolean, many?: boolean}`, kind `{id, description, attributes: Attribute[]}`, wire schema = `{kinds: Kind[]}`. Tests cover each attribute type and `many`.
 - [x] 1.4 `src/wire/ops.ts`: the flat ordered op envelope — `{op: "create", op_id, element}`, `{op: "update", op_id, id, data}`, `{op: "delete", op_id, id}` — as a discriminated union, plus the ops-list schema. Tests: each variant parses; unknown `op` fails.
@@ -28,7 +28,7 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 ## Cluster 5 — populate the corpus + runner
 
 - [x] 5.1 Fill `spec/fixtures/accept/` and `spec/fixtures/reject/`: language-neutral JSON `{schema, input: {ops}, expect}` run from an empty board. Cover: each attribute type, `many`, optional-vs-required, extras pass through, within-batch mint-then-reference, multi-op batches — and at least one reject fixture per enum code, each named for what it proves.
-- [x] 5.2 Corpus runner test in `@whtbrd/core`: load every fixture under `spec/fixtures/{accept,reject}`, parse `schema` with the wire schema, run `validate()`, assert the verdict matches `expect` (exact code on reject). Enforce enum closure both ways: every enum code appears in ≥1 reject fixture; every fixture's reject code is in the enum. The runner must fail on an unreadable or shape-invalid fixture, never skip it.
+- [x] 5.2 Corpus runner test in `@wboard/core`: load every fixture under `spec/fixtures/{accept,reject}`, parse `schema` with the wire schema, run `validate()`, assert the verdict matches `expect` (exact code on reject). Enforce enum closure both ways: every enum code appears in ≥1 reject fixture; every fixture's reject code is in the enum. The runner must fail on an unreadable or shape-invalid fixture, never skip it.
 - [x] 5.3 Update `spec/fixtures/README.md`: drop the "intentionally empty" skeleton status; state that A2 populated validate/reject and A3 adds log→projection cases. Commit.
 
 ## Cluster 6 — SPEC.md normative + verification
@@ -39,5 +39,5 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Notes
 
-- `@whtbrd/server` gets no new behavior in A2 — it only has to keep compiling against core's exports.
+- `@wboard/server` gets no new behavior in A2 — it only has to keep compiling against core's exports.
 - No span/anchor/relation/presentation concepts anywhere (#463 R27/R28): quote anchoring is host data via element-typed + json attributes.

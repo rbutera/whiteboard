@@ -1,4 +1,4 @@
-import type { Element, Op, WireSchema } from "@whtbrd/core";
+import type { Element, Op, WireSchema } from "@wboard/core";
 import { describe, expect, it } from "vitest";
 import { BoardService } from "./service.js";
 import { InMemoryBoardStore } from "./store.js";

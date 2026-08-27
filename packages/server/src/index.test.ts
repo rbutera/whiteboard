@@ -1,9 +1,9 @@
-import { PROTOCOL_VERSION } from "@whtbrd/core";
+import { PROTOCOL_VERSION } from "@wboard/core";
 import { describe, expect, it } from "vitest";
 import { IMPLEMENTED_PROTOCOL_VERSION } from "./index.js";
 
-describe("@whtbrd/server", () => {
-  it("implements the protocol version declared by @whtbrd/core", () => {
+describe("@wboard/server", () => {
+  it("implements the protocol version declared by @wboard/core", () => {
     expect(IMPLEMENTED_PROTOCOL_VERSION).toBe(PROTOCOL_VERSION);
     expect(IMPLEMENTED_PROTOCOL_VERSION).toBe("0.1");
   });

@@ -1,4 +1,4 @@
-import type { Event, Op } from "@whtbrd/core";
+import type { Event, Op } from "@wboard/core";
 import { describe, expect, it } from "vitest";
 import { project } from "./project.js";
 

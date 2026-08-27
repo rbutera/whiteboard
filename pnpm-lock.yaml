@@ -38,7 +38,7 @@ importers:
 
   packages/server:
     dependencies:
-      '@whtbrd/core':
+      '@wboard/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

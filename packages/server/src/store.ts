@@ -1,4 +1,4 @@
-import type { Event, Op, WireSchema } from "@whtbrd/core";
+import type { Event, Op, WireSchema } from "@wboard/core";
 
 /**
  * The pluggable persistence contract — log + schema only, the seam Rennet's B4
@@ -7,7 +7,7 @@ import type { Event, Op, WireSchema } from "@whtbrd/core";
  *
  * Everything is Promise-returning so a host can back it with async I/O. The
  * shipped {@link InMemoryBoardStore} is the reference implementation; a
- * conforming store need only honour this contract. Node stdlib + `@whtbrd/core`
+ * conforming store need only honour this contract. Node stdlib + `@wboard/core`
  * types only — no database dependencies.
  *
  * **Ownership.** An implementation MUST NOT alias caller-supplied memory: the
