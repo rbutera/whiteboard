@@ -1,0 +1,17 @@
+{
+  "name": "@wboard-examples/diagramming",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Worked example: the whiteboard MCP path — a real MCP client over InMemoryTransport, driven with plain asserts.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/main.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@wboard/core": "workspace:*",
+    "@wboard/mcp": "workspace:*"
+  },
+  "devDependencies": {
+    "zod": "^4.4.3"
+  }
+}

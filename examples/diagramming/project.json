@@ -1,0 +1,20 @@
+{
+  "name": "diagramming",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/diagramming/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "command": "rm -rf dist && tsc -p tsconfig.build.json",
+      "options": { "cwd": "examples/diagramming" }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json",
+      "options": { "cwd": "examples/diagramming" }
+    },
+    "test": {
+      "command": "vitest run",
+      "options": { "cwd": "examples/diagramming" }
+    }
+  }
+}
