@@ -6,6 +6,16 @@ A minimal, host-agnostic shared-canvas protocol: an append-only attributed event
 - `@wboard/server` — reference board service: event log, projections; embeddable in-process with pluggable persistence
 - MCP facade — the five tools over any board service, stateless by construction
 - `spec/` — SPEC.md plus a shared JSON fixture corpus; Python twins conform to the same corpus
+- `packages/python/` — the Python twin (`wboard.core` + `wboard.server`), proven by running the same `spec/fixtures/` corpus
+
+## Python twin
+
+`packages/python/` holds `wboard`, a Python twin of `@wboard/core` +
+`@wboard/server`: Pydantic wire models, `validate()`, and a synchronous
+reference server with identical log/projection semantics. It runs the same
+`spec/fixtures/` corpus in the same `pnpm check` gate. Development uses
+[uv](https://docs.astral.sh/uv/) (`uv sync`, `uv run pytest`); see
+`packages/python/README.md`. Not yet published to PyPI — install from source.
 
 Status: pre-alpha, under active build.
 

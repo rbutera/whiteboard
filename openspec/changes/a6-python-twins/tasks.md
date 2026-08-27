@@ -18,21 +18,21 @@ Ordered clusters. Each cluster is a clean stopping point: land it, run `pnpm che
 
 ## Cluster 4 — server twin
 
-- [ ] 4.1 `wboard.server` store: `BoardStore` Protocol (create_board / get_schema / append / get_events) + `InMemoryBoardStore` — seqs contiguous from 1 assigned at append, batch lands atomically, `copy.deepcopy` at every boundary (stored and returned values never alias caller memory). Tests: contiguity, no-aliasing (mutate what you passed/read → stored state unmoved), unknown-board reads return empty.
-- [ ] 4.2 `project(events)` pure fold → elements-by-id + id→kind map: create inserts, update shallow-merges top-level `data` keys, delete removes, absent-id update/delete is a no-op. Tests mirror the TS fold tests.
-- [ ] 4.3 `BoardService` (sync): create_board mints an id; `apply(board_id, ops, actor)` dedups by `op_id` against log + earlier-in-batch **before** validation (all-duplicate → ok, appends nothing), validates against the projection's kinds, rejects verbatim appending nothing, else appends one attributed event per survivor; `get_events(board_id, cursor=0)` per SPEC.md §Cursor; `get_state`; `describe` reports `protocol_version`; unknown board raises a plain exception everywhere. Tests: replay idempotence, mid-batch reject appends nothing, attribution, cursor round-trip. Commit.
+- [x] 4.1 `wboard.server` store: `BoardStore` Protocol (create_board / get_schema / append / get_events) + `InMemoryBoardStore` — seqs contiguous from 1 assigned at append, batch lands atomically, `copy.deepcopy` at every boundary (stored and returned values never alias caller memory). Tests: contiguity, no-aliasing (mutate what you passed/read → stored state unmoved), unknown-board reads return empty.
+- [x] 4.2 `project(events)` pure fold → elements-by-id + id→kind map: create inserts, update shallow-merges top-level `data` keys, delete removes, absent-id update/delete is a no-op. Tests mirror the TS fold tests.
+- [x] 4.3 `BoardService` (sync): create_board mints an id; `apply(board_id, ops, actor)` dedups by `op_id` against log + earlier-in-batch **before** validation (all-duplicate → ok, appends nothing), validates against the projection's kinds, rejects verbatim appending nothing, else appends one attributed event per survivor; `get_events(board_id, cursor=0)` per SPEC.md §Cursor; `get_state`; `describe` reports `protocol_version`; unknown board raises a plain exception everywhere. Tests: replay idempotence, mid-batch reject appends nothing, attribution, cursor round-trip. Commit.
 
 ## Cluster 5 — authoring twin
 
-- [ ] 5.1 Pydantic authoring surface: declare kinds + typed attributes in Python and `compile_to_wire()` → wire schema. One honest layer — authoring is convenience, wire is truth.
-- [ ] 5.2 Drift test: every authored example compiles to output the wire models parse, and validating via authored schemas agrees with `validate()` on the same inputs. Commit.
+- [x] 5.1 Pydantic authoring surface: declare kinds + typed attributes in Python and `compile_to_wire()` → wire schema. One honest layer — authoring is convenience, wire is truth.
+- [x] 5.2 Drift test: every authored example compiles to output the wire models parse, and validating via authored schemas agrees with `validate()` on the same inputs. Commit.
 
 ## Cluster 6 — corpus runners
 
-- [ ] 6.1 Shared test loader (twin of the TS `loadFixtures`/`assertRootLayout`): fixtures root = repo-root-relative `Path(__file__).resolve().parents[N] / "spec" / "fixtures"`, assert it exists; root layout closed to `{.gitkeep, README.md, accept, reject, project}`; per-dir loading errors on any stray file, nested dir, or non-`.gitkeep` hidden entry — fail, never skip; JSON/read errors propagate. Tests for each guard via tmp dirs (mirror the TS loader tests).
-- [ ] 6.2 Core corpus runner: every `accept/`+`reject/` fixture through `validate()` from an empty board; exact code on reject; enum closure both ways (every code has ≥1 reject fixture; every fixture code is in `ERROR_CODES`); asserts the corpus is non-empty.
-- [ ] 6.3 Server corpus runner: the whole corpus through `BoardService` — accept applies cleanly, reject returns the code and leaves the log empty, `project/` fixtures fold batch-by-batch to the exact `expect.state` and `expect.events` (seqs, actors, ops deep-equal). Commit.
-- [ ] 6.4 Docs: root `README.md` Python paragraph (layout, uv requirement, not on PyPI yet); `spec/fixtures/README.md` present-tense Python runner status. Commit.
+- [x] 6.1 Shared test loader (twin of the TS `loadFixtures`/`assertRootLayout`): fixtures root = repo-root-relative `Path(__file__).resolve().parents[N] / "spec" / "fixtures"`, assert it exists; root layout closed to `{.gitkeep, README.md, accept, reject, project}`; per-dir loading errors on any stray file, nested dir, or non-`.gitkeep` hidden entry — fail, never skip; JSON/read errors propagate. Tests for each guard via tmp dirs (mirror the TS loader tests).
+- [x] 6.2 Core corpus runner: every `accept/`+`reject/` fixture through `validate()` from an empty board; exact code on reject; enum closure both ways (every code has ≥1 reject fixture; every fixture code is in `ERROR_CODES`); asserts the corpus is non-empty.
+- [x] 6.3 Server corpus runner: the whole corpus through `BoardService` — accept applies cleanly, reject returns the code and leaves the log empty, `project/` fixtures fold batch-by-batch to the exact `expect.state` and `expect.events` (seqs, actors, ops deep-equal). Commit.
+- [x] 6.4 Docs: root `README.md` Python paragraph (layout, uv requirement, not on PyPI yet); `spec/fixtures/README.md` present-tense Python runner status. Commit.
 
 ## Cluster 7 — verification (positive controls)
 

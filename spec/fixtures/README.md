@@ -3,8 +3,8 @@
 The shared conformance corpus for the whiteboard protocol. It is **not a
 package** — it is language-neutral JSON that every implementation runs. Today
 `@wboard/core` runs the whole corpus in CI; the reference server (A3) and the
-Python twins (A6) must run this same corpus to claim conformance. Passing it is
-what "implements protocol version X" means.
+Python twin (A6) run this same corpus to claim conformance. Passing it is what
+"implements protocol version X" means.
 
 > Status: A2 populated `accept/` and `reject/` with the validate/reject cases —
 > every attribute type, `many`, optional-vs-required, extras pass-through,
@@ -15,7 +15,10 @@ what "implements protocol version X" means.
 > `accept/`+`reject/` fixture through `validate()`, and `@wboard/server`
 > (`packages/server/src/corpus.test.ts`) runs the **whole** corpus — validate
 > cases *and* projection cases — end-to-end through the reference service. The
-> Python twins (A6) run this same corpus.
+> Python twin (A6) runs this same corpus: `wboard.core`'s validate runner
+> (`packages/python/tests/test_core_corpus.py`) over `accept/`+`reject/`, and
+> `wboard.server`'s runner (`packages/python/tests/test_server_corpus.py`) over
+> the whole corpus including `project/`.
 
 ## Fixture shape
 
@@ -86,5 +89,5 @@ log:
 The corpus is both validate/reject **and** log→projection server semantics: an
 event log folding to an expected projected state, `op_id` dedup, and
 all-or-nothing batch application. The `project/` cases landed with the reference
-server (A3); the TS server runs the whole corpus today, and the Python twins
-(A6) run the identical corpus.
+server (A3); the TS server runs the whole corpus today, and the Python twin
+(A6) runs the identical corpus.
