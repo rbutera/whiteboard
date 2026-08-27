@@ -1,0 +1,42 @@
+{
+  "name": "python",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/python/src",
+  "projectType": "library",
+  "namedInputs": {
+    "pythonFiles": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/.venv/**",
+      "!{projectRoot}/.pytest_cache/**",
+      "!{projectRoot}/.mypy_cache/**",
+      "!{projectRoot}/.ruff_cache/**",
+      "!{projectRoot}/**/__pycache__/**"
+    ]
+  },
+  "targets": {
+    "format": {
+      "command": "uv run ruff format --check .",
+      "options": { "cwd": "packages/python" },
+      "cache": true,
+      "inputs": ["pythonFiles"]
+    },
+    "lint": {
+      "command": "uv run ruff check .",
+      "options": { "cwd": "packages/python" },
+      "cache": true,
+      "inputs": ["pythonFiles"]
+    },
+    "typecheck": {
+      "command": "uv run mypy src tests",
+      "options": { "cwd": "packages/python" },
+      "cache": true,
+      "inputs": ["pythonFiles"]
+    },
+    "test": {
+      "command": "uv run pytest",
+      "options": { "cwd": "packages/python" },
+      "cache": true,
+      "inputs": ["pythonFiles", "{workspaceRoot}/spec/fixtures/**"]
+    }
+  }
+}

@@ -18,6 +18,11 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: Set up uv (Python toolchain for the `python` project)
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.3"
+
       - name: Install
         run: pnpm install --frozen-lockfile
 

@@ -38,3 +38,7 @@ Out of scope (deferred, not dropped): the Python MCP facade twin, WebSocket push
 - Root `README.md`, `spec/fixtures/README.md` — prose updates.
 - `spec/SPEC.md`, `spec/fixtures/**/*.json` — **unchanged** (fixtures are mutated only transiently as positive controls, reverted clean).
 - TS packages — untouched.
+
+## Amendments
+
+- **Pydantic floor raised `>=2` → `>=2.11`** (amends the version contract in task 1.1). The wire models achieve one-truth serialization with `ConfigDict(serialize_by_alias=True)`, which only exists from pydantic 2.11; on 2.10 the aliased `schema` field dumps as `schema_`. The floor now declares the real requirement so an in-range install cannot silently break serialization. `uv.lock` still pins 2.13.4.

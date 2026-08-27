@@ -1,0 +1,36 @@
+[project]
+name = "wboard"
+version = "0.1.0a0"
+description = "Python twin of the whiteboard protocol: wire models, validation, and reference server."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+# pydantic 2.11+ for ConfigDict(serialize_by_alias): the wire models rely on it
+# so every dump path emits aliases (e.g. "schema", not "schema_"). 2.10 lacks it.
+dependencies = ["pydantic>=2.11,<3"]
+
+[dependency-groups]
+dev = ["pytest>=8,<9", "mypy>=1,<2", "ruff==0.14.2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wboard"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

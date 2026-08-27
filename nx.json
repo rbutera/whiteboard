@@ -1,5 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "neverConnectToCloud": true,
+  "analytics": false,
   "release": {
     "projects": ["core", "server", "mcp"],
     "projectsRelationship": "fixed",
@@ -21,6 +23,10 @@
       "{workspaceRoot}/**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
       "!{workspaceRoot}/node_modules/**",
       "!{workspaceRoot}/**/dist/**",
+      "!{workspaceRoot}/**/.venv/**",
+      "!{workspaceRoot}/**/.pytest_cache/**",
+      "!{workspaceRoot}/**/.mypy_cache/**",
+      "!{workspaceRoot}/**/.ruff_cache/**",
       "{workspaceRoot}/biome.json"
     ],
     "sharedGlobals": [
