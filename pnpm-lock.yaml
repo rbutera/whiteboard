@@ -45,10 +45,10 @@ importers:
         specifier: ^22.0.0
         version: 22.20.1
       '@wboard/core':
-        specifier: 0.1.0-alpha.1
+        specifier: 0.1.0-alpha.2
         version: link:../core
       '@wboard/server':
-        specifier: 0.1.0-alpha.1
+        specifier: 0.1.0-alpha.2
         version: link:../server
       ws:
         specifier: ^8.21.3
@@ -64,7 +64,7 @@ importers:
   packages/server:
     dependencies:
       '@wboard/core':
-        specifier: 0.1.0-alpha.1
+        specifier: 0.1.0-alpha.2
         version: link:../core
     devDependencies:
       zod:

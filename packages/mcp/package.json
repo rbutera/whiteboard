@@ -1,6 +1,6 @@
 {
   "name": "@wboard/mcp",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Stateless MCP facade for the whiteboard protocol: the board tools over any board service, plus the wboard-mcp stdio binary and WebSocket push.",
   "license": "MIT",
   "repository": {
@@ -31,8 +31,8 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@types/node": "^22.0.0",
-    "@wboard/core": "0.1.0-alpha.1",
-    "@wboard/server": "0.1.0-alpha.1",
+    "@wboard/core": "0.1.0-alpha.2",
+    "@wboard/server": "0.1.0-alpha.2",
     "ws": "^8.21.3"
   },
   "devDependencies": {

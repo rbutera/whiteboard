@@ -1,6 +1,6 @@
 {
   "name": "@wboard/server",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Reference board service for the whiteboard protocol: append-only event log, projections, embeddable in-process with pluggable persistence.",
   "license": "MIT",
   "repository": {
@@ -26,7 +26,7 @@
     "dist"
   ],
   "dependencies": {
-    "@wboard/core": "0.1.0-alpha.1"
+    "@wboard/core": "0.1.0-alpha.2"
   },
   "devDependencies": {
     "zod": "^4.4.3"
