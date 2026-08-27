@@ -23,15 +23,26 @@ export interface Projection {
 export function project(events: Iterable<Event>): Projection {
   const elements = new Map<string, Element>();
   for (const { op } of events) {
-    if (op.op === "create") {
-      elements.set(op.element.id, op.element);
-    } else if (op.op === "update") {
-      const current = elements.get(op.id);
-      if (current) {
-        elements.set(op.id, { ...current, data: { ...current.data, ...op.data } });
+    switch (op.op) {
+      case "create":
+        elements.set(op.element.id, op.element);
+        break;
+      case "update": {
+        const current = elements.get(op.id);
+        if (current) {
+          elements.set(op.id, { ...current, data: { ...current.data, ...op.data } });
+        }
+        break;
       }
-    } else {
-      elements.delete(op.id);
+      case "delete":
+        elements.delete(op.id);
+        break;
+      default: {
+        // Exhaustiveness: a new op verb must be handled here, not silently
+        // treated as a delete. `op` narrows to `never` when all cases are covered.
+        const unreachable: never = op;
+        throw new Error(`unknown op verb: ${JSON.stringify(unreachable)}`);
+      }
     }
   }
   const kinds = new Map<string, string>();
