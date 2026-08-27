@@ -272,9 +272,11 @@ any conforming twin exposes the equivalent seam.
 The **MCP facade** exposes the reference service as [Model Context
 Protocol](https://modelcontextprotocol.io) tools, so an agent authors a board
 through the same stateless calls a human does. It is a **thin translator, not a
-second service**: every tool call is exactly one `BoardService` call, and the
-facade holds **zero board state and zero per-connection state**. Tools are
-listed unconditionally (#453). In TypeScript this is `@wboard/mcp`.
+second service**: every tool call is exactly one `BoardService` call — bar
+`screenshot`, which pairs `getSchema` with the state projection before
+rendering — and the facade holds **zero board state and zero per-connection
+state**. Tools are listed unconditionally (#453). In TypeScript this is
+`@wboard/mcp`.
 
 ### Tool-name binding
 
@@ -306,9 +308,12 @@ the one standard MCP error path the facade leaves alone.
 The closed error enum surfaces **through tool results, not exceptions**. An
 `apply_ops` rejection (`{ ok: false, code, message }`) is a **normal**
 (non-error) result, because a rejection is protocol data the agent must read.
-The service's plain `Error` throws — an unknown `board_id` — map to
-`isError: true` results carrying the message; the facade never raises an MCP
-protocol error for a protocol-semantics failure.
+The service's plain `Error` throws — an unknown `board_id` — **propagate** out
+of the tool handler; the pinned `@modelcontextprotocol/sdk` (`^1.30`) converts
+an uncaught tool-handler throw into an `isError: true` result carrying the
+message. That SDK behavior is the contract, so the facade adds no redundant
+mapping of its own; either way a protocol-semantics failure reaches the client
+as an `isError` tool result, never a raised MCP protocol error.
 
 ### Attribution
 

@@ -36,26 +36,24 @@ function wireResult(response: unknown): CallToolResult {
   };
 }
 
-/** The service's plain `Error` throws (unknown `board_id`) map to a transport
- * `isError: true` result — never a thrown MCP protocol error (#453 / decisions). */
-function errorResult(err: unknown): CallToolResult {
-  const message = err instanceof Error ? err.message : String(err);
-  return { content: [{ type: "text", text: message }], isError: true };
-}
-
 /**
  * Build the stateless MCP facade over a {@link BoardService}. Every tool call is
- * exactly one service call; the facade holds **zero board state and zero
- * per-connection state**. Tools are listed unconditionally (#453). The caller
- * connects the returned `server` over any SDK transport (`InMemoryTransport`
- * in-process, `StdioServerTransport` over stdio).
+ * exactly one service call (bar `screenshot`, which pairs schema + state); the
+ * facade holds **zero board state and zero per-connection state**. Tools are
+ * listed unconditionally (#453). The caller connects the returned `server` over
+ * any SDK transport (`InMemoryTransport` in-process, `StdioServerTransport` over
+ * stdio).
  *
  * Result mapping (decided in `proposal.md`):
  * - Every tool returns its wire response verbatim as `structuredContent` plus the
  *   same JSON in a text block.
  * - `apply_ops` rejections (`{ok: false, code, message}`) are **normal** results
  *   — the closed enum is protocol data an agent reads, not an exception.
- * - Service throws (unknown board) are caught and returned as `isError: true`.
+ * - Service throws (unknown board) **propagate**; the pinned `@modelcontextprotocol/sdk`
+ *   (`^1.30`) converts an uncaught tool-handler throw into an `isError: true`
+ *   result carrying the message. That SDK behavior is the contract — the facade
+ *   adds no redundant mapping of its own (a `facade.test.ts` behavior test pins
+ *   the observable contract and fails if an SDK upgrade changes the wrapping).
  * - Malformed inputs are rejected by the SDK's own zod validation — the one
  *   standard MCP error path left alone.
  */
@@ -72,14 +70,7 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
       description: "Mint a board, declaring its host schema up front. Returns the board_id.",
       inputSchema: CreateRequestSchema.shape,
     },
-    async ({ schema }) => {
-      try {
-        const board_id = await service.createBoard(schema);
-        return wireResult({ board_id });
-      } catch (err) {
-        return errorResult(err);
-      }
-    },
+    async ({ schema }) => wireResult({ board_id: await service.createBoard(schema) }),
   );
 
   server.registerTool(
@@ -88,13 +79,7 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
       description: "Read back the host schema declared for a board.",
       inputSchema: SchemaRequestSchema.shape,
     },
-    async ({ board_id }) => {
-      try {
-        return wireResult({ schema: await service.getSchema(board_id) });
-      } catch (err) {
-        return errorResult(err);
-      }
-    },
+    async ({ board_id }) => wireResult({ schema: await service.getSchema(board_id) }),
   );
 
   server.registerTool(
@@ -104,13 +89,8 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
         "Apply a flat, ordered ops list to a board, all-or-nothing. Returns the accepted or rejected verdict verbatim. Optional actor attributes the ops (default: the facade's defaultActor).",
       inputSchema: { ...ApplyRequestSchema.shape, actor: z.string().optional() },
     },
-    async ({ board_id, ops, actor }) => {
-      try {
-        return wireResult(await service.apply(board_id, ops, actor ?? defaultActor));
-      } catch (err) {
-        return errorResult(err);
-      }
-    },
+    async ({ board_id, ops, actor }) =>
+      wireResult(await service.apply(board_id, ops, actor ?? defaultActor)),
   );
 
   server.registerTool(
@@ -119,13 +99,7 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
       description: "Board metadata and the protocol version the service implements.",
       inputSchema: DescribeRequestSchema.shape,
     },
-    async ({ board_id }) => {
-      try {
-        return wireResult(await service.describe(board_id));
-      } catch (err) {
-        return errorResult(err);
-      }
-    },
+    async ({ board_id }) => wireResult(await service.describe(board_id)),
   );
 
   server.registerTool(
@@ -135,13 +109,7 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
         "Read the board's append-only event log. Events with seq > cursor (cursor omitted = from the start), in order. Polling by cursor is the default live-update path.",
       inputSchema: EventsRequestSchema.shape,
     },
-    async ({ board_id, cursor }) => {
-      try {
-        return wireResult(await service.getEvents(board_id, cursor));
-      } catch (err) {
-        return errorResult(err);
-      }
-    },
+    async ({ board_id, cursor }) => wireResult(await service.getEvents(board_id, cursor)),
   );
 
   server.registerTool(
@@ -152,22 +120,18 @@ export function createWhiteboardMcpServer(options: WhiteboardMcpOptions = {}): W
       inputSchema: ScreenshotRequestSchema.shape,
     },
     async ({ board_id }) => {
-      try {
-        const [schema, elements] = await Promise.all([
-          service.getSchema(board_id),
-          service.getState(board_id),
-        ]);
-        const shot = await renderer(schema, elements);
-        return {
-          content: [
-            { type: "image", data: shot.base64, mimeType: shot.mime_type },
-            { type: "text", text: JSON.stringify(shot) },
-          ],
-          structuredContent: shot as unknown as Record<string, unknown>,
-        };
-      } catch (err) {
-        return errorResult(err);
-      }
+      const [schema, elements] = await Promise.all([
+        service.getSchema(board_id),
+        service.getState(board_id),
+      ]);
+      const shot = await renderer(schema, elements);
+      return {
+        content: [
+          { type: "image", data: shot.base64, mimeType: shot.mime_type },
+          { type: "text", text: JSON.stringify(shot) },
+        ],
+        structuredContent: shot as unknown as Record<string, unknown>,
+      };
     },
   );
 
