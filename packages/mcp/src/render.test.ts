@@ -28,6 +28,18 @@ describe("schematicRenderer", () => {
     expect(shuffled.base64).toBe(forward.base64);
   });
 
+  it("canonicalizes data key order — reversed keys yield identical bytes", async () => {
+    const forward: Element = { id: "e1", kind: "note", data: { a: 1, b: 2, meta: { x: 1, y: 2 } } };
+    const reversed: Element = {
+      id: "e1",
+      kind: "note",
+      data: { meta: { y: 2, x: 1 }, b: 2, a: 1 },
+    };
+    const shotA = await schematicRenderer(SCHEMA, els([forward]));
+    const shotB = await schematicRenderer(SCHEMA, els([reversed]));
+    expect(shotB.base64).toBe(shotA.base64);
+  });
+
   it("renders id, kind and data key/values", async () => {
     const svg = svgOf(
       await schematicRenderer(

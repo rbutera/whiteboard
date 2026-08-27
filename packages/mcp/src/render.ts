@@ -22,10 +22,26 @@ function esc(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
-/** A data value as a single-line string: objects/arrays as compact JSON,
- * primitives as their string form. */
+/** Recursively sort object keys (arrays keep order) so semantically identical
+ * data — differing only in key insertion order — canonicalizes to one form. */
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .map(([k, v]) => [k, canonical(v)]),
+    );
+  }
+  return value;
+}
+
+/** A data value as a single-line string: objects/arrays as canonical compact
+ * JSON, primitives as their string form. */
 function formatValue(value: unknown): string {
-  return value !== null && typeof value === "object" ? JSON.stringify(value) : String(value);
+  return value !== null && typeof value === "object"
+    ? JSON.stringify(canonical(value))
+    : String(value);
 }
 
 const CARD_WIDTH = 260;
@@ -66,7 +82,7 @@ export const schematicRenderer: BoardRenderer = async (_schema, elements) => {
     y += KIND_HEADER;
 
     for (const el of items) {
-      const entries = Object.entries(el.data);
+      const entries = Object.entries(el.data).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
       const cardHeight = CARD_PAD * 2 + LINE_HEIGHT * (1 + entries.length);
       blocks.push(
         `<rect x="${MARGIN}" y="${y}" width="${CARD_WIDTH}" height="${cardHeight}" rx="6" fill="#fff" stroke="#bbb"/>`,
