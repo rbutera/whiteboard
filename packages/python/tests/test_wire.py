@@ -1,6 +1,7 @@
 """Wire models: round-trip parse from raw JSON dicts, and a bad discriminator
 fails."""
 
+import json
 from typing import Any
 
 import pytest
@@ -172,3 +173,24 @@ def test_create_request_schema_alias_roundtrips() -> None:
     # And "schema_" is not an accepted external key (extra=forbid, no alias match).
     with pytest.raises(ValidationError):
         CreateRequest.model_validate({"schema_": {"kinds": []}})
+
+
+def test_every_serialization_path_agrees() -> None:
+    # model_dump(), model_dump_json(), and TypeAdapter dumping must all emit the
+    # same wire JSON: unset optionals omitted (never null/false/0), aliases used.
+    attr_base = {"name": "n", "description": "d", "type": "string", "required": False}
+    attr = Attribute.model_validate(attr_base)  # many unset
+    attr_ta: TypeAdapter[Attribute] = TypeAdapter(Attribute)
+    assert attr.model_dump() == attr_base
+    assert json.loads(attr.model_dump_json()) == attr_base  # no "many": false
+    assert attr_ta.dump_python(attr) == attr_base
+    assert json.loads(attr_ta.dump_json(attr)) == attr_base
+
+    req = EventsRequest.model_validate({"board_id": "b"})  # cursor unset
+    assert "cursor" not in json.loads(req.model_dump_json())  # no "cursor": 0
+    assert "cursor" not in TypeAdapter(EventsRequest).dump_python(req)
+
+    cr = CreateRequest.model_validate({"schema": {"kinds": []}})
+    assert "schema" in json.loads(cr.model_dump_json())  # not "schema_"
+    assert "schema_" not in json.loads(cr.model_dump_json())
+    assert "schema" in TypeAdapter(CreateRequest).dump_python(cr)

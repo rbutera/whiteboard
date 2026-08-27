@@ -9,7 +9,14 @@ is a parse error, mirroring the TS ``z.strictObject`` schemas.
 import math
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+)
 
 from .errors import ErrorCode
 
@@ -45,16 +52,27 @@ class _Strict(BaseModel):
     ``schema``) is addressed by its wire alias only — the Python attribute name
     (``schema_``) is NOT an accepted input key.
 
-    Serialization mirrors Zod ``.optional()`` = *undefined* (never *null*): dumps go
-    by alias, and a field left at its default (an omitted optional like ``many`` or
-    ``cursor``) is omitted rather than emitted as ``null``/``false``."""
+    Serialization mirrors Zod ``.optional()`` = *undefined* (never *null*), and it
+    is rooted at the model level so every path agrees — ``model_dump``,
+    ``model_dump_json``, and ``TypeAdapter`` dumping. ``serialize_by_alias`` emits the
+    wire alias (``schema``, not ``schema_``) everywhere; the wrap serializer drops any
+    field still at its default (an unset optional like ``many``/``cursor``) so it is
+    omitted rather than emitted as ``null``/``false``/``0``."""
 
-    model_config = ConfigDict(extra="forbid", strict=True)
+    model_config = ConfigDict(extra="forbid", strict=True, serialize_by_alias=True)
 
-    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
-        kwargs.setdefault("by_alias", True)
-        kwargs.setdefault("exclude_defaults", True)
-        return super().model_dump(**kwargs)
+    @model_serializer(mode="wrap")
+    def _omit_unset_optionals(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        # Runs on the core schema, so it applies to model_dump, model_dump_json, and
+        # TypeAdapter dumps alike — not just one caller-visible method.
+        dumped: dict[str, Any] = handler(self)
+        for name, field in self.__class__.model_fields.items():
+            if field.is_required():
+                continue
+            key = field.serialization_alias or field.alias or name
+            if key in dumped and getattr(self, name) == field.default:
+                del dumped[key]
+        return dumped
 
 
 # — Elements & host schema ————————————————————————————————————————————————
