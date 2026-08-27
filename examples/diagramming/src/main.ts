@@ -65,18 +65,36 @@ export async function run(): Promise<void> {
     { op: "create", op_id: "n-a", element: { id: "a", kind: "node", data: { label: "A" } } },
     { op: "create", op_id: "n-b", element: { id: "b", kind: "node", data: { label: "B" } } },
     { op: "create", op_id: "n-c", element: { id: "c", kind: "node", data: { label: "C" } } },
-    { op: "create", op_id: "e-ab", element: { id: "ab", kind: "edge", data: { from: "a", to: "b", label: "a to b" } } },
-    { op: "create", op_id: "e-bc", element: { id: "bc", kind: "edge", data: { from: "b", to: "c", label: "b to c" } } },
+    {
+      op: "create",
+      op_id: "e-ab",
+      element: { id: "ab", kind: "edge", data: { from: "a", to: "b", label: "a to b" } },
+    },
+    {
+      op: "create",
+      op_id: "e-bc",
+      element: { id: "bc", kind: "edge", data: { from: "b", to: "c", label: "b to c" } },
+    },
   ];
-  const applied = await client.callTool({ name: "apply_ops", arguments: { board_id: boardId, ops: graph } });
+  const applied = await client.callTool({
+    name: "apply_ops",
+    arguments: { board_id: boardId, ops: graph },
+  });
   assert.ok(!applied.isError, "apply_ops of a valid graph is not an isError result");
   assert.deepEqual(structured(applied), { ok: true });
 
   // A deliberate bad-ref batch: an edge to a node that does not exist.
   const badBatch: Op[] = [
-    { op: "create", op_id: "e-bad", element: { id: "bad", kind: "edge", data: { from: "a", to: "ghost", label: "x" } } },
+    {
+      op: "create",
+      op_id: "e-bad",
+      element: { id: "bad", kind: "edge", data: { from: "a", to: "ghost", label: "x" } },
+    },
   ];
-  const rejected = await client.callTool({ name: "apply_ops", arguments: { board_id: boardId, ops: badBatch } });
+  const rejected = await client.callTool({
+    name: "apply_ops",
+    arguments: { board_id: boardId, ops: badBatch },
+  });
   // The rejection is a NORMAL result carrying the closed enum code, not an isError.
   assert.ok(!rejected.isError, "an apply rejection is a normal result, not an isError");
   const rej = structured<{ ok: boolean; code: string; message: string }>(rejected);
@@ -110,7 +128,10 @@ export async function run(): Promise<void> {
   assert.ok(img.base64.length > 0, "screenshot returns non-empty base64 bytes");
 
   // describe_board: the MCP handshake surface reports the protocol version.
-  const described = await client.callTool({ name: "describe_board", arguments: { board_id: boardId } });
+  const described = await client.callTool({
+    name: "describe_board",
+    arguments: { board_id: boardId },
+  });
   assert.equal(structured<{ protocol_version: string }>(described).protocol_version, "0.1");
 
   await client.close();

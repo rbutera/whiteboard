@@ -31,22 +31,42 @@ const schema = defineSchema({
 /** One batch: two columns, then three cards that reference the column ids
  * minted earlier in this same list (id-first, within-batch refs). */
 const firstBatch: Op[] = [
-  { op: "create", op_id: "c-todo", element: { id: "col-todo", kind: "column", data: { title: "To do" } } },
-  { op: "create", op_id: "c-doing", element: { id: "col-doing", kind: "column", data: { title: "Doing" } } },
+  {
+    op: "create",
+    op_id: "c-todo",
+    element: { id: "col-todo", kind: "column", data: { title: "To do" } },
+  },
+  {
+    op: "create",
+    op_id: "c-doing",
+    element: { id: "col-doing", kind: "column", data: { title: "Doing" } },
+  },
   {
     op: "create",
     op_id: "c-a",
-    element: { id: "card-a", kind: "card", data: { title: "Write docs", column: "col-todo", tags: ["docs"] } },
+    element: {
+      id: "card-a",
+      kind: "card",
+      data: { title: "Write docs", column: "col-todo", tags: ["docs"] },
+    },
   },
   {
     op: "create",
     op_id: "c-b",
-    element: { id: "card-b", kind: "card", data: { title: "Ship examples", column: "col-todo", tags: [] } },
+    element: {
+      id: "card-b",
+      kind: "card",
+      data: { title: "Ship examples", column: "col-todo", tags: [] },
+    },
   },
   {
     op: "create",
     op_id: "c-c",
-    element: { id: "card-c", kind: "card", data: { title: "Review", column: "col-doing", tags: ["urgent"] } },
+    element: {
+      id: "card-c",
+      kind: "card",
+      data: { title: "Review", column: "col-doing", tags: ["urgent"] },
+    },
   },
 ];
 
@@ -60,7 +80,11 @@ export async function run(): Promise<void> {
   // Move card-c from Doing to To do: an `update` overwriting the `column` ref.
   // The shallow merge keeps title and tags, overwrites column.
   assert.deepEqual(
-    await service.apply(boardId, [{ op: "update", op_id: "m-1", id: "card-c", data: { column: "col-todo" } }], "alice"),
+    await service.apply(
+      boardId,
+      [{ op: "update", op_id: "m-1", id: "card-c", data: { column: "col-todo" } }],
+      "alice",
+    ),
     { ok: true },
   );
 
@@ -79,8 +103,22 @@ export async function run(): Promise<void> {
     new Map([
       ["col-todo", { id: "col-todo", kind: "column", data: { title: "To do" } }],
       ["col-doing", { id: "col-doing", kind: "column", data: { title: "Doing" } }],
-      ["card-a", { id: "card-a", kind: "card", data: { title: "Write docs", column: "col-todo", tags: ["docs"] } }],
-      ["card-c", { id: "card-c", kind: "card", data: { title: "Review", column: "col-todo", tags: ["urgent"] } }],
+      [
+        "card-a",
+        {
+          id: "card-a",
+          kind: "card",
+          data: { title: "Write docs", column: "col-todo", tags: ["docs"] },
+        },
+      ],
+      [
+        "card-c",
+        {
+          id: "card-c",
+          kind: "card",
+          data: { title: "Review", column: "col-todo", tags: ["urgent"] },
+        },
+      ],
     ]),
   );
 
