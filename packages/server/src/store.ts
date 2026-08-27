@@ -37,3 +37,46 @@ export interface AppendEntry {
   actor: string;
   op: Op;
 }
+
+/**
+ * The reference {@link BoardStore}: an in-process append-only log per board,
+ * held in a Map. Single-threaded JS makes append trivially atomic — seqs are
+ * assigned and pushed in one synchronous step, so a batch is contiguous or
+ * absent. Reads hand back shallow copies so a caller cannot mutate stored
+ * events. No persistence beyond the process; a host wanting durability supplies
+ * its own {@link BoardStore}.
+ */
+export class InMemoryBoardStore implements BoardStore {
+  readonly #boards = new Map<string, { schema: WireSchema; events: Event[] }>();
+
+  createBoard(boardId: string, schema: WireSchema): Promise<void> {
+    if (this.#boards.has(boardId)) {
+      return Promise.reject(new Error(`board already exists: ${boardId}`));
+    }
+    this.#boards.set(boardId, { schema, events: [] });
+    return Promise.resolve();
+  }
+
+  getSchema(boardId: string): Promise<WireSchema | undefined> {
+    return Promise.resolve(this.#boards.get(boardId)?.schema);
+  }
+
+  append(boardId: string, entries: readonly AppendEntry[]): Promise<Event[]> {
+    const board = this.#boards.get(boardId);
+    if (!board) return Promise.reject(new Error(`unknown board: ${boardId}`));
+    const base = board.events.length;
+    const appended: Event[] = entries.map((entry, i) => ({
+      seq: base + i + 1,
+      actor: entry.actor,
+      op: entry.op,
+    }));
+    board.events.push(...appended);
+    return Promise.resolve(appended.map((e) => ({ ...e })));
+  }
+
+  getEvents(boardId: string, afterSeq: number): Promise<Event[]> {
+    const board = this.#boards.get(boardId);
+    if (!board) return Promise.resolve([]);
+    return Promise.resolve(board.events.filter((e) => e.seq > afterSeq).map((e) => ({ ...e })));
+  }
+}
