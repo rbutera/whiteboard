@@ -9,7 +9,8 @@
       "!{projectRoot}/.venv/**",
       "!{projectRoot}/.pytest_cache/**",
       "!{projectRoot}/.mypy_cache/**",
-      "!{projectRoot}/.ruff_cache/**"
+      "!{projectRoot}/.ruff_cache/**",
+      "!{projectRoot}/**/__pycache__/**"
     ]
   },
   "targets": {

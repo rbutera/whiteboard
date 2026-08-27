@@ -5,7 +5,11 @@
       "**/*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc}",
       "!**/node_modules",
       "!**/dist",
-      "!**/.nx"
+      "!**/.nx",
+      "!**/.venv",
+      "!**/.pytest_cache",
+      "!**/.mypy_cache",
+      "!**/.ruff_cache"
     ]
   },
   "formatter": {
