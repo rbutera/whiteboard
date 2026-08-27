@@ -9,10 +9,10 @@ semver (each `@whtbrd/*` library's npm version) is a **separate axis** from
 the protocol version defined here.
 
 > Status: A2 finalized the **Wire shape** and **Error codes** sections against
-> the shipped `@whtbrd/core` schemas. The locked shapes come from the decision
-> tickets (rbutera/rennet#453–#456); the one remaining section marked _draft_
-> (**Projection semantics**) is finalized by A3 (reference server). No section
-> here may contradict those tickets.
+> the shipped `@whtbrd/core` schemas; A3 finalized **Projection semantics** and
+> the **Reference server** requirement against the shipped `@whtbrd/server`. The
+> locked shapes come from the decision tickets (rbutera/rennet#453–#456); no
+> section here may contradict those tickets, and no section remains in draft.
 
 ## Protocol version
 
@@ -174,8 +174,92 @@ without a bump to the protocol version above and the discussion that implies.
 
 ## Projection semantics
 
-_Draft (A3)._ How the append-only event log projects to board state: event
-ordering, how `apply` ops become events, `op_id` dedup (via client op-ids and
-the event log, per #453 — A3 decides where dedup happens), and the deterministic
-fold from log to current state. A3 will extend the fixture corpus with
-log→projection cases; today the corpus covers validate/reject only.
+The board's truth is its **append-only attributed event log**. Board state is a
+deterministic **projection** of that log — never stored, always derivable, so
+the same log always yields the same state.
+
+### Events
+
+An event is `{ seq, actor, op }`:
+
+- `seq` — a monotonic sequence number, **contiguous and starting at 1**,
+  assigned by storage at append time.
+- `actor` — the caller-supplied string attributed to this op (see
+  **Attribution**).
+- `op` — the accepted op verbatim (`create` / `update` / `delete`).
+
+`apply` appends **one event per accepted op**. A batch's events are appended
+**atomically**: they all land, contiguously, or none do (all-or-nothing). A
+rejected batch appends nothing. `events` returns events ordered by `seq`.
+
+### Dedup
+
+Dedup lives in the **server's `apply` path**, per-op, **before validation**. An
+op whose `op_id` already appears in the board's event log — or earlier in the
+same batch — is dropped as already-applied. The surviving ops validate
+(all-or-nothing) and append. A batch whose every op is a duplicate returns
+`{ ok: true }` and appends nothing, so **replay is idempotent**: re-applying an
+already-applied batch leaves the log unchanged. The protocol itself supplies no
+idempotency token — the client-supplied `op_id` and the log provide it. Typed
+`validate` is dedup-unaware; dedup is not one of the closed error codes.
+
+### The fold
+
+Board state is folded from the log in `seq` order:
+
+- **create** — insert the op's element (id → element).
+- **update** — **shallow-merge** the op's `data` keys into the element's `data`:
+  supplied keys overwrite, untouched keys survive, undeclared passthrough keys
+  survive. Structure below the top level is replaced, not deep-merged.
+- **delete** — remove the element.
+
+The projection is the resulting id → element map. It is a pure function of the
+events: same log, same projection, always. Because state is only ever this fold,
+a service may cache the projection but MUST be able to rebuild it from the log
+and MUST serve state equal to that rebuild.
+
+### Cursor
+
+`events` (a.k.a. `get_events`) reads by cursor. `get_events(board_id, cursor?)`
+returns events with `seq > cursor` (cursor omitted = `0` = from the start),
+ordered by `seq`. The returned `cursor` is the last returned event's `seq`, or
+the request's `cursor` when nothing newer exists. Polling by cursor is the
+default live-update mechanism (#453).
+
+### Attribution
+
+`actor` is **data, not authentication**: a plain string the caller of `apply`
+supplies, recorded on each event so the log carries who acted. The reference
+server performs no identity ceremony and no auth — anonymous mutation is
+structurally impossible only in that every event carries whatever actor the
+caller passed. A transport facade (a later workstream) may bind `actor` to an
+authenticated principal; the protocol does not require it.
+
+## Reference server
+
+A conforming reference board service MUST be an **embeddable in-process
+library** with **pluggable persistence**:
+
+- The event-log storage behind the service is an **interface the host
+  supplies** — log + schema only (create a board, read a board's schema, atomic
+  store-assigned-`seq` append, read events after a `seq`). The shipped in-memory
+  store is **one** implementation; a host may supply another (e.g. a durable
+  one) without touching the service.
+- No **transport, session, connection, or auth** concept may be required to
+  embed it. `board_id` is a plain minted string threaded as an argument; the
+  service holds **zero per-connection state**. HTTP / WebSocket / stdio / MCP
+  are facade concerns layered on top, never a prerequisite for embedding.
+- State access is a **library API** (read the projection directly); it is not a
+  wire tool. Wire clients fold `events` themselves.
+- Concurrent `apply` calls to the **same board** MUST be serialized so the
+  read-log → validate → append window cannot interleave (otherwise two applies
+  carrying the same `op_id` could both pass dedup and each append an event). The
+  service is the single writer, so this is an in-process guarantee; it does not
+  require compare-and-set in the storage interface. A multi-process deployment
+  that shares a store across writers needs store-level CAS instead.
+
+This embeddability-with-pluggable-persistence requirement is load-bearing: it is
+what lets a host (e.g. Rennet) embed the reference server in-process and wrap it
+with its own persistence. In TypeScript this is `@whtbrd/server`'s
+`BoardService` over a `BoardStore` interface, defaulting to an in-memory store;
+any conforming twin exposes the equivalent seam.

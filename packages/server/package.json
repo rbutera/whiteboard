@@ -16,5 +16,8 @@
   ],
   "dependencies": {
     "@whtbrd/core": "workspace:*"
+  },
+  "devDependencies": {
+    "zod": "^4.4.3"
   }
 }

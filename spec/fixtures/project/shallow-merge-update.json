@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": false },
+          { "name": "tag", "description": "a label", "type": "string", "required": false }
+        ]
+      }
+    ]
+  },
+  "batches": [
+    {
+      "actor": "alice",
+      "ops": [
+        {
+          "op": "create",
+          "op_id": "o1",
+          "element": { "id": "x", "kind": "note", "data": { "text": "hello", "tag": "keep" } }
+        }
+      ],
+      "expect": "accept"
+    },
+    {
+      "actor": "alice",
+      "ops": [{ "op": "update", "op_id": "o2", "id": "x", "data": { "text": "edited" } }],
+      "expect": "accept"
+    }
+  ],
+  "expect": {
+    "state": {
+      "x": { "id": "x", "kind": "note", "data": { "text": "edited", "tag": "keep" } }
+    },
+    "events": [
+      {
+        "seq": 1,
+        "actor": "alice",
+        "op": {
+          "op": "create",
+          "op_id": "o1",
+          "element": { "id": "x", "kind": "note", "data": { "text": "hello", "tag": "keep" } }
+        }
+      },
+      {
+        "seq": 2,
+        "actor": "alice",
+        "op": { "op": "update", "op_id": "o2", "id": "x", "data": { "text": "edited" } }
+      }
+    ]
+  }
+}

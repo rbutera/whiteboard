@@ -41,6 +41,10 @@ importers:
       '@whtbrd/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
 packages:
 

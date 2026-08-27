@@ -1,0 +1,73 @@
+{
+  "schema": {
+    "kinds": [
+      {
+        "id": "note",
+        "description": "a sticky note",
+        "attributes": [
+          { "name": "text", "description": "the note body", "type": "string", "required": false }
+        ]
+      }
+    ]
+  },
+  "batches": [
+    {
+      "actor": "alice",
+      "ops": [
+        {
+          "op": "create",
+          "op_id": "o1",
+          "element": { "id": "x", "kind": "note", "data": { "text": "one" } }
+        },
+        {
+          "op": "create",
+          "op_id": "o2",
+          "element": { "id": "y", "kind": "note", "data": { "text": "two" } }
+        }
+      ],
+      "expect": "accept"
+    },
+    {
+      "actor": "alice",
+      "ops": [
+        {
+          "op": "create",
+          "op_id": "o1",
+          "element": { "id": "x", "kind": "note", "data": { "text": "one" } }
+        },
+        {
+          "op": "create",
+          "op_id": "o2",
+          "element": { "id": "y", "kind": "note", "data": { "text": "two" } }
+        }
+      ],
+      "expect": "accept"
+    }
+  ],
+  "expect": {
+    "state": {
+      "x": { "id": "x", "kind": "note", "data": { "text": "one" } },
+      "y": { "id": "y", "kind": "note", "data": { "text": "two" } }
+    },
+    "events": [
+      {
+        "seq": 1,
+        "actor": "alice",
+        "op": {
+          "op": "create",
+          "op_id": "o1",
+          "element": { "id": "x", "kind": "note", "data": { "text": "one" } }
+        }
+      },
+      {
+        "seq": 2,
+        "actor": "alice",
+        "op": {
+          "op": "create",
+          "op_id": "o2",
+          "element": { "id": "y", "kind": "note", "data": { "text": "two" } }
+        }
+      }
+    ]
+  }
+}

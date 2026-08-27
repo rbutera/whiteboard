@@ -8,3 +8,6 @@ import { PROTOCOL_VERSION } from "@whtbrd/core";
 export const IMPLEMENTED_PROTOCOL_VERSION = PROTOCOL_VERSION;
 
 export { PROTOCOL_VERSION };
+export * from "./store.js";
+export * from "./project.js";
+export * from "./service.js";
