@@ -2,7 +2,7 @@
 
 Track A of the board rebuild (plan: `docs/developing/plans/board-rebuild-plan.md` in rbutera/rennet; tracker: https://github.com/rbutera/rennet/issues/463). This repo is public and MIT. Rule Zero governs: no consent gates, no ceremony, no speculative hardening. The decision tickets below are CLOSED — implement them, never re-open or contradict them.
 
-A1 + A2 landed: the nx monorepo with the `pnpm check` gate, and the full `@whtbrd/core` wire contract — Zod schemas for the five tool shapes (+ screenshot), the host-schema authoring kit with its drift test, stateless `validate(wireSchema, ops, existing: ReadonlyMap<id, kind>)` with the closed six-code enum, and the populated validate/reject corpus with its core runner. `@whtbrd/server` is a skeleton re-exporting `PROTOCOL_VERSION`. **Build on what exists — do not re-scaffold, do not touch core's validation.** The npm scope is `@whtbrd/*`.
+A1 + A2 landed: the nx monorepo with the `pnpm check` gate, and the full `@wboard/core` wire contract — Zod schemas for the five tool shapes (+ screenshot), the host-schema authoring kit with its drift test, stateless `validate(wireSchema, ops, existing: ReadonlyMap<id, kind>)` with the closed six-code enum, and the populated validate/reject corpus with its core runner. `@wboard/server` is a skeleton re-exporting `PROTOCOL_VERSION`. **Build on what exists — do not re-scaffold, do not touch core's validation.** The npm scope is `@wboard/*`.
 
 ## Loop rules
 
@@ -16,15 +16,15 @@ The loop rules from `openspec/changes/a1-bootstrap-monorepo/context.md` apply ve
 
 ## Objective
 
-Make `@whtbrd/server` the real reference board service: an **embeddable in-process TypeScript library** (no transport, no sessions) whose truth is an **append-only attributed event log** behind a **pluggable storage interface**, with board state a deterministic projection of that log. Extend the corpus with log→projection cases and run the *entire* corpus (A2's validate cases included) end-to-end through the server's `apply`. Finish by making SPEC.md's **Projection semantics** section normative — including the embeddability + pluggable-persistence requirement Rennet's B4 depends on. SPEC.md must not lie about the shipped code.
+Make `@wboard/server` the real reference board service: an **embeddable in-process TypeScript library** (no transport, no sessions) whose truth is an **append-only attributed event log** behind a **pluggable storage interface**, with board state a deterministic projection of that log. Extend the corpus with log→projection cases and run the *entire* corpus (A2's validate cases included) end-to-end through the server's `apply`. Finish by making SPEC.md's **Projection semantics** section normative — including the embeddability + pluggable-persistence requirement Rennet's B4 depends on. SPEC.md must not lie about the shipped code.
 
 ## Decision tickets (the spec — closed, permalinked)
 
 - https://github.com/rbutera/rennet/issues/454 — **primary authority for A3's spine**: diverge from prior art's last-writer-wins mutable Map. The append-only **attributed** event log is the source of truth; current state is a projection of the log, rebuildable at any time; every event carries an actor; anonymous mutation is structurally impossible.
 - https://github.com/rbutera/rennet/issues/453 — statelessness: `board_id` is a plain minted string threaded as an argument; the service holds zero per-connection state; **dedup via client op-ids + the event log** (the protocol supplies no idempotency — the log does); live updates default to `get_events` polling by cursor.
-- https://github.com/rbutera/rennet/issues/455 — tool shapes (validated v3): five tools + screenshot, flat ordered ops list, all-or-nothing `apply`. A3 implements their server-side semantics; the wire shapes are already shipped in `@whtbrd/core` and are not renegotiated here.
-- https://github.com/rbutera/rennet/issues/456 — layout + interop: `@whtbrd/server` is the reference board service; the corpus covers **server semantics**, not just validation — given the same ops, conforming board services fold the log into identical projections and emitted events.
-- https://github.com/rbutera/rennet/issues/463 — Track A packet. **A3 must make `@whtbrd/server` embeddable in-process with pluggable persistence, and this requirement goes into SPEC.md** — it is the Rennet-side bet that gates Track B's B4 (Rennet embeds the server under `.rennet/` with its own persistence wrap). The R27/R28 comment binds: thread growth is ordinary append — no new mutation semantics, no span primitive.
+- https://github.com/rbutera/rennet/issues/455 — tool shapes (validated v3): five tools + screenshot, flat ordered ops list, all-or-nothing `apply`. A3 implements their server-side semantics; the wire shapes are already shipped in `@wboard/core` and are not renegotiated here.
+- https://github.com/rbutera/rennet/issues/456 — layout + interop: `@wboard/server` is the reference board service; the corpus covers **server semantics**, not just validation — given the same ops, conforming board services fold the log into identical projections and emitted events.
+- https://github.com/rbutera/rennet/issues/463 — Track A packet. **A3 must make `@wboard/server` embeddable in-process with pluggable persistence, and this requirement goes into SPEC.md** — it is the Rennet-side bet that gates Track B's B4 (Rennet embeds the server under `.rennet/` with its own persistence wrap). The R27/R28 comment binds: thread growth is ordinary append — no new mutation semantics, no span primitive.
 
 ## Decisions baked in (decided here, not re-litigated by the implementer)
 

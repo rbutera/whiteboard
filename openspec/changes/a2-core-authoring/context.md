@@ -2,7 +2,7 @@
 
 Track A of the board rebuild (plan: `docs/developing/plans/board-rebuild-plan.md` in rbutera/rennet; tracker: https://github.com/rbutera/rennet/issues/463). This repo is public and MIT. Rule Zero governs: no consent gates, no ceremony, no speculative hardening. The decision tickets below are CLOSED — implement them, never re-open or contradict them.
 
-A1 landed: the nx monorepo, `@whtbrd/core` + `@whtbrd/server` skeletons, `spec/SPEC.md` skeleton, `spec/fixtures/` corpus contract, the `pnpm check` gate, CI. **Build on what exists — do not re-scaffold.** The npm scope is `@whtbrd/*` (org rename); "whiteboard" appears only in the repo slug and prose.
+A1 landed: the nx monorepo, `@wboard/core` + `@wboard/server` skeletons, `spec/SPEC.md` skeleton, `spec/fixtures/` corpus contract, the `pnpm check` gate, CI. **Build on what exists — do not re-scaffold.** The npm scope is `@wboard/*` (org rename); "whiteboard" appears only in the repo slug and prose.
 
 ## Loop rules
 
@@ -16,7 +16,7 @@ The loop rules from `openspec/changes/a1-bootstrap-monorepo/context.md` apply ve
 
 ## Objective
 
-Make `@whtbrd/core` the real wire contract: the five tool shapes as Zod schemas + types, the host-schema authoring kit with its compile-to-wire step, typed validation with all-or-nothing batch semantics, the finalized closed error-code enum, and a populated `spec/fixtures/` corpus that a core test runs in full. Finish by making SPEC.md's **Wire shape** and **Error codes** sections normative — SPEC.md must not lie about the shipped code.
+Make `@wboard/core` the real wire contract: the five tool shapes as Zod schemas + types, the host-schema authoring kit with its compile-to-wire step, typed validation with all-or-nothing batch semantics, the finalized closed error-code enum, and a populated `spec/fixtures/` corpus that a core test runs in full. Finish by making SPEC.md's **Wire shape** and **Error codes** sections normative — SPEC.md must not lie about the shipped code.
 
 ## Decision tickets (the spec — closed, permalinked)
 
@@ -35,7 +35,7 @@ Make `@whtbrd/core` the real wire contract: the five tool shapes as Zod schemas 
 
 ## Out of scope (later workstreams — do NOT start these)
 
-- **A3**: reference server — event log, projections, dedup execution, persistence. A2 defines shapes and validation only; nothing in `@whtbrd/server` changes beyond what compiles.
+- **A3**: reference server — event log, projections, dedup execution, persistence. A2 defines shapes and validation only; nothing in `@wboard/server` changes beyond what compiles.
 - **A4**: the MCP facade.
 - **A5**: nx release / npm publish.
 - **A6**: all Python.

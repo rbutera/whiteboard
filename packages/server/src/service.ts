@@ -8,7 +8,7 @@ import {
   PROTOCOL_VERSION,
   type WireSchema,
   validate,
-} from "@whtbrd/core";
+} from "@wboard/core";
 import { project } from "./project.js";
 import { type BoardStore, InMemoryBoardStore } from "./store.js";
 

@@ -1,7 +1,7 @@
 import type { AppendEntry } from "./store.js";
 import { InMemoryBoardStore } from "./store.js";
 import { describe, expect, it } from "vitest";
-import type { Op, WireSchema } from "@whtbrd/core";
+import type { Op, WireSchema } from "@wboard/core";
 
 const SCHEMA: WireSchema = { kinds: [] };
 

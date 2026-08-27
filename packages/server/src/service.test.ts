@@ -1,4 +1,4 @@
-import type { Element, Op, WireSchema } from "@whtbrd/core";
+import type { Element, Op, WireSchema } from "@wboard/core";
 import { describe, expect, it } from "vitest";
 import { BoardService } from "./service.js";
 import { InMemoryBoardStore } from "./store.js";
@@ -149,7 +149,8 @@ describe("BoardService", () => {
     ]);
 
     // One apply wins and appends; the other dedups to a no-op — never two events.
-    expect([a, b]).toContainEqual({ ok: true });
+    // Both must succeed: a dedup is still ok:true, not a failure.
+    expect([a, b]).toEqual([{ ok: true }, { ok: true }]);
     expect((await svc.getEvents(board)).events.length).toBe(1);
   });
 

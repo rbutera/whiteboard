@@ -1,5 +1,5 @@
 {
-  "name": "@whtbrd/server",
+  "name": "@wboard/server",
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
@@ -15,7 +15,7 @@
     "dist"
   ],
   "dependencies": {
-    "@whtbrd/core": "workspace:*"
+    "@wboard/core": "workspace:*"
   },
   "devDependencies": {
     "zod": "^4.4.3"

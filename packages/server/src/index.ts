@@ -1,7 +1,7 @@
-import { PROTOCOL_VERSION } from "@whtbrd/core";
+import { PROTOCOL_VERSION } from "@wboard/core";
 
 /**
- * The protocol version this server implements, sourced from `@whtbrd/core`
+ * The protocol version this server implements, sourced from `@wboard/core`
  * (which SPEC.md owns). Surfaced in the MCP `describe` handshake once the
  * facade lands (A4).
  */

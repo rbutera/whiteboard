@@ -15,11 +15,11 @@ Track A of the board rebuild (plan: `docs/developing/plans/board-rebuild-plan.md
 Stand up the `whiteboard` nx monorepo so every later workstream (A2–A7) lands on a working toolchain with a real gate:
 
 - pnpm + nx workspace; TypeScript strict toolchain; Biome for lint + format; Vitest for tests.
-- Package skeletons `@whtbrd/core` and `@whtbrd/server` (server depends on core) — near-empty but genuinely building, typechecking, and passing at least one real test each, so the gate has a positive control.
+- Package skeletons `@wboard/core` and `@wboard/server` (server depends on core) — near-empty but genuinely building, typechecking, and passing at least one real test each, so the gate has a positive control.
 - `spec/` (NOT a package): `SPEC.md` skeleton + `spec/fixtures/` corpus skeleton with a README stating the corpus contract.
 - Root gate `pnpm check` = `nx run-many -t format,lint,typecheck,test,build`, mirroring rennet's gate shape.
 - One GitHub Actions workflow running that gate on push and PR.
-- MIT `license` field in every package.json; `@whtbrd/*` scope; per-package semver (versions start `0.0.0`; nx release config is A5 — leave at most a note).
+- MIT `license` field in every package.json; `@wboard/*` scope; per-package semver (versions start `0.0.0`; nx release config is A5 — leave at most a note).
 
 ## Decision tickets (the spec — closed, permalinked)
 
@@ -43,8 +43,8 @@ Facts A1 must bake into the SPEC.md skeleton so A2–A4 don't fight it: the fixt
 ## Verification (end-to-end, a positive control that can fail)
 
 1. From a clean checkout: `pnpm install && pnpm check` — green, all five targets across both packages.
-2. Positive control: deliberately break one assertion in a `@whtbrd/core` test and one type in `@whtbrd/server`; `pnpm check` must FAIL both times; revert.
-3. Cross-package proof: a `@whtbrd/server` test imports from `@whtbrd/core` and passes.
+2. Positive control: deliberately break one assertion in a `@wboard/core` test and one type in `@wboard/server`; `pnpm check` must FAIL both times; revert.
+3. Cross-package proof: a `@wboard/server` test imports from `@wboard/core` and passes.
 4. CI: the workflow runs the same gate green on the pushed commit (show the run URL).
 
 ## Completion sigil

@@ -5,12 +5,12 @@ is the truth; board **state is a projection** of that log. Agents and humans
 author the same board through a small set of **stateless tools**.
 
 This document is the authority for the wire contract and its version. Package
-semver (each `@whtbrd/*` library's npm version) is a **separate axis** from
+semver (each `@wboard/*` library's npm version) is a **separate axis** from
 the protocol version defined here.
 
 > Status: A2 finalized the **Wire shape** and **Error codes** sections against
-> the shipped `@whtbrd/core` schemas; A3 finalized **Projection semantics** and
-> the **Reference server** requirement against the shipped `@whtbrd/server`. The
+> the shipped `@wboard/core` schemas; A3 finalized **Projection semantics** and
+> the **Reference server** requirement against the shipped `@wboard/server`. The
 > locked shapes come from the decision tickets (rbutera/rennet#453–#456); no
 > section here may contradict those tickets, and no section remains in draft.
 
@@ -23,7 +23,7 @@ defines. It starts at **`0.1`**.
   library may release many npm versions while implementing the same protocol
   version.
 - Every whiteboard library declares the protocol version it implements (in TS,
-  `@whtbrd/core` exports `PROTOCOL_VERSION`) and **surfaces it in the MCP
+  `@wboard/core` exports `PROTOCOL_VERSION`) and **surfaces it in the MCP
   `describe` handshake**, so a client can learn what a given board service
   speaks.
 - TS and Python twins that claim the same protocol version MUST agree on every
@@ -73,7 +73,7 @@ unvalidated.
 
 ## Wire shape
 
-The canonical wire is **JSON**. The `@whtbrd/core` Zod schemas (and the Python
+The canonical wire is **JSON**. The `@wboard/core` Zod schemas (and the Python
 Pydantic twins) are **derived surfaces** that describe this JSON; the shapes
 below are the source of truth, and every twin claiming protocol `0.1` matches
 them field for field.
@@ -168,7 +168,7 @@ offending attribute's description on the typed failures.
 
 **Closure.** The enum is closed in both directions: every code has at least one
 reject fixture in `spec/fixtures/reject/`, and no fixture may reject with a code
-not defined here (the `@whtbrd/core` corpus runner enforces both). Adding,
+not defined here (the `@wboard/core` corpus runner enforces both). Adding,
 renaming, or removing a code is a **protocol-version change** — it may not happen
 without a bump to the protocol version above and the discussion that implies.
 
@@ -260,6 +260,6 @@ library** with **pluggable persistence**:
 
 This embeddability-with-pluggable-persistence requirement is load-bearing: it is
 what lets a host (e.g. Rennet) embed the reference server in-process and wrap it
-with its own persistence. In TypeScript this is `@whtbrd/server`'s
+with its own persistence. In TypeScript this is `@wboard/server`'s
 `BoardService` over a `BoardStore` interface, defaulting to an in-memory store;
 any conforming twin exposes the equivalent seam.
