@@ -52,13 +52,20 @@ describe("project", () => {
       ev("a", create("x", { parent: "box" }, "note")),
       ev("a", update("x", { text: "hi" })),
     ]);
-    expect(elements.get("x")).toEqual({ id: "x", kind: "note", data: { parent: "box", text: "hi" } });
+    expect(elements.get("x")).toEqual({
+      id: "x",
+      kind: "note",
+      data: { parent: "box", text: "hi" },
+    });
     expect(kinds.get("box")).toBe("container");
     expect(kinds.get("x")).toBe("note");
   });
 
   it("preserves id and kind across an update", () => {
-    const { elements } = project([ev("a", create("x", { n: 1 }, "note")), ev("a", update("x", { n: 2 }))]);
+    const { elements } = project([
+      ev("a", create("x", { n: 1 }, "note")),
+      ev("a", update("x", { n: 2 })),
+    ]);
     const x = elements.get("x")!;
     expect(x.id).toBe("x");
     expect(x.kind).toBe("note");

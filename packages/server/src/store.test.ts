@@ -30,11 +30,9 @@ describe("InMemoryBoardStore", () => {
     await store.createBoard("b", SCHEMA);
     await store.append("b", [entry("a"), entry("b"), entry("c")]);
 
-    expect((await store.getEvents("b", 0)).map((e) => e.op.op === "create" && e.op.element.id)).toEqual([
-      "a",
-      "b",
-      "c",
-    ]);
+    expect(
+      (await store.getEvents("b", 0)).map((e) => e.op.op === "create" && e.op.element.id),
+    ).toEqual(["a", "b", "c"]);
     expect((await store.getEvents("b", 1)).map((e) => e.seq)).toEqual([2, 3]);
     expect(await store.getEvents("b", 3)).toEqual([]);
   });

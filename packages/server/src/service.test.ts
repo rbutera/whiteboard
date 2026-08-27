@@ -31,8 +31,12 @@ describe("BoardService", () => {
     const svc = new BoardService();
     const board = await svc.createBoard(SCHEMA);
 
-    expect(await svc.apply(board, [create("o1", "x", { text: "hi" })], "alice")).toEqual({ ok: true });
-    expect(await svc.apply(board, [update("o2", "x", { text: "bye" })], "alice")).toEqual({ ok: true });
+    expect(await svc.apply(board, [create("o1", "x", { text: "hi" })], "alice")).toEqual({
+      ok: true,
+    });
+    expect(await svc.apply(board, [update("o2", "x", { text: "bye" })], "alice")).toEqual({
+      ok: true,
+    });
 
     const state = await svc.getState(board);
     expect(state.get("x")).toEqual({ id: "x", kind: "note", data: { text: "bye" } });
@@ -64,7 +68,9 @@ describe("BoardService", () => {
     const board = await svc.createBoard(SCHEMA);
     await svc.apply(board, [create("o1", "x")], "alice");
 
-    expect(await svc.apply(board, [create("o1", "x"), create("o2", "y")], "alice")).toEqual({ ok: true });
+    expect(await svc.apply(board, [create("o1", "x"), create("o2", "y")], "alice")).toEqual({
+      ok: true,
+    });
 
     const state = await svc.getState(board);
     expect([...state.keys()].sort()).toEqual(["x", "y"]);
