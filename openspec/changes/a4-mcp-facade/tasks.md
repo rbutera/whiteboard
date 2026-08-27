@@ -22,7 +22,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 ## Cluster 5 — corpus through the MCP facade
 
-- [ ] 5.1 `src/corpus.test.ts`: run the **whole** `spec/fixtures/` corpus end-to-end through an MCP client over `InMemoryTransport`. Accept/reject fixtures: `create_board` with the fixture schema, `apply_ops` the input, assert the verdict from `structuredContent` (exact code on reject) and that a reject leaves `get_events` empty. Project fixtures: run each batch through `apply_ops` asserting its verdict, then fetch `get_events` and deep-equal the raw events against `expect.events` and the client-side `project()` fold of them against `expect.state`. Fail on an unreadable or shape-invalid fixture, never skip; enforce the same fixture-root closure the other runners do. Commit.
+- [x] 5.1 `src/corpus.test.ts`: run the **whole** `spec/fixtures/` corpus end-to-end through an MCP client over `InMemoryTransport`. Accept/reject fixtures: `create_board` with the fixture schema, `apply_ops` the input, assert the verdict from `structuredContent` (exact code on reject) and that a reject leaves `get_events` empty. Project fixtures: run each batch through `apply_ops` asserting its verdict, then fetch `get_events` and deep-equal the raw events against `expect.events` and the client-side `project()` fold of them against `expect.state`. Fail on an unreadable or shape-invalid fixture, never skip; enforce the same fixture-root closure the other runners do. Commit.
 
 ## Cluster 6 — SPEC.md facade section + verification
 
