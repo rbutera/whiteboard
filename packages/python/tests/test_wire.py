@@ -148,4 +148,8 @@ def test_create_request_schema_alias_roundtrips() -> None:
     raw: dict[str, Any] = {"schema": {"kinds": []}}
     req = CreateRequest.model_validate(raw)
     assert req.schema_.kinds == []
-    assert req.model_dump(by_alias=True) == raw
+    # Default dump emits the wire key "schema", never the Python name "schema_".
+    assert req.model_dump() == raw
+    # And "schema_" is not an accepted external key (extra=forbid, no alias match).
+    with pytest.raises(ValidationError):
+        CreateRequest.model_validate({"schema_": {"kinds": []}})

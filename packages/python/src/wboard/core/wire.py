@@ -19,13 +19,14 @@ class _Strict(BaseModel):
     bool→int (``seq: true``), or str→int (``cursor: "1"``). JSON number semantics
     are preserved: a JSON integer still satisfies an ``int`` field, and element
     ``data`` values are ``Any`` (untouched by strictness — ``validate`` types them).
-    ``populate_by_name`` lets aliased fields (e.g. ``schema``) also be set by name.
+    An aliased field (e.g. ``schema``) is addressed by its wire alias only — the
+    Python attribute name (``schema_``) is NOT an accepted input key.
 
     Serialization mirrors Zod ``.optional()`` = *undefined* (never *null*): dumps go
     by alias, and a field left at its default (an omitted optional like ``many`` or
     ``cursor``) is omitted rather than emitted as ``null``/``false``."""
 
-    model_config = ConfigDict(extra="forbid", strict=True, populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", strict=True)
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
         kwargs.setdefault("by_alias", True)
