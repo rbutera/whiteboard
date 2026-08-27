@@ -1,6 +1,5 @@
-import type { Op, WireSchema } from "@whtbrd/core";
+import type { Element, Op, WireSchema } from "@whtbrd/core";
 import { describe, expect, it } from "vitest";
-import { project } from "./project.js";
 import { BoardService } from "./service.js";
 import { InMemoryBoardStore } from "./store.js";
 
@@ -119,16 +118,25 @@ describe("BoardService", () => {
     expect(caughtUp.cursor).toBe(3);
   });
 
-  it("served state equals an independent fold of the raw store log", async () => {
+  it("served state equals a hand-written fold of the raw store log", async () => {
     const store = new InMemoryBoardStore();
     const svc = new BoardService(store);
     const board = await svc.createBoard(SCHEMA);
     await svc.apply(board, [create("o1", "x", { text: "a" }), create("o2", "y")], "alice");
     await svc.apply(board, [update("o3", "x", { text: "b" })], "bob");
 
-    const rawLog = await store.getEvents(board, 0);
-    const rebuilt = project(rawLog).elements;
-    expect(await svc.getState(board)).toEqual(rebuilt);
+    // An independent reduce — deliberately NOT project() — so this asserts the
+    // served state against a second implementation, not against itself.
+    const hand = new Map<string, Element>();
+    for (const { op } of await store.getEvents(board, 0)) {
+      if (op.op === "create") hand.set(op.element.id, op.element);
+      else if (op.op === "update") {
+        const cur = hand.get(op.id);
+        if (cur) hand.set(op.id, { ...cur, data: { ...cur.data, ...op.data } });
+      } else hand.delete(op.id);
+    }
+
+    expect(await svc.getState(board)).toEqual(hand);
   });
 
   it("serializes concurrent same-op_id applies: exactly one event appends", async () => {
