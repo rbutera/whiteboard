@@ -2,7 +2,7 @@ Ordered clusters. Each cluster is a clean stopping point sized for one implement
 
 ## Cluster 1 — package scaffold
 
-- [ ] 1.1 `packages/mcp`: `package.json` (`@wboard/mcp`, `0.0.0`, MIT, ESM, `dist` exports mirroring `packages/server`, `"bin": {"wboard-mcp": "./dist/bin.js"}`; deps `@wboard/core` + `@wboard/server` `workspace:*`, `@modelcontextprotocol/sdk` `^1.30.0`, `ws` `^8.21.3`; devDeps `zod` `^4.4.3`, `@types/ws`), plus `project.json`, `tsconfig.json`, `tsconfig.build.json`, `vitest.config.ts` copied from `packages/server` and adjusted. One real placeholder-free test (e.g. re-export of `PROTOCOL_VERSION`) so the gate has a positive control. `pnpm check` green across all three packages. Commit.
+- [x] 1.1 `packages/mcp`: `package.json` (`@wboard/mcp`, `0.0.0`, MIT, ESM, `dist` exports mirroring `packages/server`, `"bin": {"wboard-mcp": "./dist/bin.js"}`; deps `@wboard/core` + `@wboard/server` `workspace:*`, `@modelcontextprotocol/sdk` `^1.30.0`, `ws` `^8.21.3`; devDeps `zod` `^4.4.3`, `@types/ws`), plus `project.json`, `tsconfig.json`, `tsconfig.build.json`, `vitest.config.ts` copied from `packages/server` and adjusted. One real placeholder-free test (e.g. re-export of `PROTOCOL_VERSION`) so the gate has a positive control. `pnpm check` green across all three packages. Commit.
 
 ## Cluster 2 — the facade: five tools over BoardService
 
