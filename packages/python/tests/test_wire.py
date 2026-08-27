@@ -119,6 +119,25 @@ def test_strict_preserves_json_number_semantics() -> None:
     assert EventsResponse.model_validate({"events": [], "cursor": 7}).cursor == 7
 
 
+def test_integer_fields_accept_integral_float_like_js() -> None:
+    # JS has no int/float split: JSON 1.0 parses to 1 and z.number() accepts it.
+    # A wire integer field must match — 1.0 is 1 — while still rejecting a
+    # non-integral float, a bool, and a string. Probe via JSON (1.0 specifically).
+    assert EventsResponse.model_validate_json('{"events": [], "cursor": 1.0}').cursor == 1
+    assert (
+        Event.model_validate_json(
+            '{"seq": 2.0, "actor": "a", "op": {"op": "delete", "op_id": "o", "id": "x"}}'
+        ).seq
+        == 2
+    )
+    with pytest.raises(ValidationError):  # non-integral float
+        EventsResponse.model_validate_json('{"events": [], "cursor": 1.5}')
+    with pytest.raises(ValidationError):  # bool
+        EventsResponse.model_validate({"events": [], "cursor": True})
+    with pytest.raises(ValidationError):  # string
+        EventsResponse.model_validate_json('{"events": [], "cursor": "1"}')
+
+
 def test_apply_response_requires_ok_discriminator() -> None:
     adapter: TypeAdapter[Any] = TypeAdapter(ApplyResponse)
     with pytest.raises(ValidationError):  # {} must not parse as ok:true

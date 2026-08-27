@@ -6,21 +6,44 @@ JSON values; every other object is closed (``extra="forbid"``) so a stray field
 is a parse error, mirroring the TS ``z.strictObject`` schemas.
 """
 
+import math
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from .errors import ErrorCode
 
 
+def _wire_int(value: object) -> int:
+    """Coerce a JSON number to an int the way JS does. JSON has no int/float
+    distinction, so ``1.0`` is the integer 1 and TS's ``z.number()`` accepts it;
+    strict pydantic would reject the float. Accept an int, or a finite float with
+    an integral value (``1.0`` → 1); reject a non-integral float (``1.5``), a bool
+    (the ``isinstance(True, int)`` trap), a string, and NaN/Infinity."""
+    if isinstance(value, bool):
+        raise ValueError("expected an integer, got a bool")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        if math.isfinite(value) and value.is_integer():
+            return int(value)
+        raise ValueError("expected an integral number")
+    raise ValueError("expected an integer")
+
+
+# A wire integer field: strict about type but JSON-number-honest about ``1.0``.
+WireInt = Annotated[int, BeforeValidator(_wire_int)]
+
+
 class _Strict(BaseModel):
     """Closed object: unknown fields are a parse error, and ``strict`` mode forbids
-    the primitive coercions Zod's parser rejects — no int→bool (``required: 1``),
-    bool→int (``seq: true``), or str→int (``cursor: "1"``). JSON number semantics
-    are preserved: a JSON integer still satisfies an ``int`` field, and element
-    ``data`` values are ``Any`` (untouched by strictness — ``validate`` types them).
-    An aliased field (e.g. ``schema``) is addressed by its wire alias only — the
-    Python attribute name (``schema_``) is NOT an accepted input key.
+    the primitive coercions Zod's parser rejects — no int→bool (``required: 1``) or
+    str→int (``cursor: "1"``). Integer wire fields use :data:`WireInt`, which keeps
+    JS's JSON-number semantics (``1.0`` is the integer 1) while still rejecting a
+    non-integral float, a bool, or a string. Element ``data`` values are ``Any``
+    (untouched by strictness — ``validate`` types them). An aliased field (e.g.
+    ``schema``) is addressed by its wire alias only — the Python attribute name
+    (``schema_``) is NOT an accepted input key.
 
     Serialization mirrors Zod ``.optional()`` = *undefined* (never *null*): dumps go
     by alias, and a field left at its default (an omitted optional like ``many`` or
@@ -95,7 +118,7 @@ Op = Annotated[CreateOp | UpdateOp | DeleteOp, Field(discriminator="op")]
 
 
 class Event(_Strict):
-    seq: int
+    seq: WireInt
     actor: str
     op: Op
 
@@ -155,13 +178,13 @@ class DescribeResponse(_Strict):
 class EventsRequest(_Strict):
     board_id: str
     # Zod ``z.number().optional()``: omit (→ from the start) or a number, never
-    # null. Default 0 (= omitted); strict mode rejects an explicit null.
-    cursor: int = 0
+    # null. Default 0 (= omitted); WireInt rejects null/string, accepts 1.0.
+    cursor: WireInt = 0
 
 
 class EventsResponse(_Strict):
     events: list[Event]
-    cursor: int
+    cursor: WireInt
 
 
 class ScreenshotRequest(_Strict):
