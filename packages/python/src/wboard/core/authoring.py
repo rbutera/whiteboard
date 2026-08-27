@@ -19,7 +19,7 @@ class AuthoredAttribute(_Strict):
     description: str
     type: AttributeType
     required: bool
-    many: bool | None = None
+    many: bool = False
 
 
 class AuthoredKind(_Strict):
@@ -47,7 +47,7 @@ def compile_to_wire(authored: AuthoredSchema) -> WireSchema:
                         description=attr.description,
                         type=attr.type,
                         required=attr.required,
-                        many=True if attr.many else None,
+                        many=bool(attr.many),
                     )
                     for name, attr in kind.attributes.items()
                 ],

@@ -106,14 +106,14 @@ class BoardService:
                 seen.add(op.op_id)
                 survivors.append(op)
             if not survivors:
-                return ApplyAccepted()
+                return ApplyAccepted(ok=True)
 
             result = validate(schema, survivors, project(log).kinds)
             if isinstance(result, ApplyRejected):
                 return result
 
             self._store.append(board_id, [AppendEntry(actor=actor, op=op) for op in survivors])
-            return ApplyAccepted()
+            return ApplyAccepted(ok=True)
 
     def _require_schema(self, board_id: str) -> WireSchema:
         schema = self._store.get_schema(board_id)

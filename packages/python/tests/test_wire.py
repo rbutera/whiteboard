@@ -8,12 +8,14 @@ from pydantic import TypeAdapter, ValidationError
 
 from wboard.core import (
     ApplyRequest,
+    ApplyResponse,
     Attribute,
     CreateRequest,
     CreateResponse,
     DescribeResponse,
     Element,
     Event,
+    EventsRequest,
     EventsResponse,
     Op,
     WireSchema,
@@ -115,6 +117,31 @@ def test_strict_preserves_json_number_semantics() -> None:
         == 3
     )
     assert EventsResponse.model_validate({"events": [], "cursor": 7}).cursor == 7
+
+
+def test_apply_response_requires_ok_discriminator() -> None:
+    adapter: TypeAdapter[Any] = TypeAdapter(ApplyResponse)
+    with pytest.raises(ValidationError):  # {} must not parse as ok:true
+        adapter.validate_python({})
+    assert adapter.validate_python({"ok": True}).ok is True
+    rej = adapter.validate_python({"ok": False, "code": "wrong-type", "message": "m"})
+    assert rej.ok is False and rej.code == "wrong-type"
+
+
+def test_events_request_cursor_optional_not_nullable() -> None:
+    assert EventsRequest.model_validate({"board_id": "b"}).cursor == 0  # omitted OK
+    assert EventsRequest.model_validate({"board_id": "b", "cursor": 5}).cursor == 5
+    with pytest.raises(ValidationError):  # explicit null rejected
+        EventsRequest.model_validate({"board_id": "b", "cursor": None})
+
+
+def test_attribute_many_emission_omits_when_not_true() -> None:
+    base = {"name": "n", "description": "d", "type": "string", "required": False}
+    assert Attribute.model_validate({**base, "many": False}).model_dump() == base
+    assert Attribute.model_validate({**base, "many": True}).model_dump() == {**base, "many": True}
+    assert Attribute.model_validate(base).model_dump() == base  # omitted stays omitted
+    with pytest.raises(ValidationError):  # null rejected
+        Attribute.model_validate({**base, "many": None})
 
 
 def test_create_request_schema_alias_roundtrips() -> None:

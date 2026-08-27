@@ -38,6 +38,11 @@ def test_compile_output_parses_under_wire_models() -> None:
     assert note.id == "note"
     tags = next(a for a in note.attributes if a.name == "tags")
     assert tags.many is True
+    # Emission parity with TS compileToWire: many appears only when true, never
+    # as null/false on the non-many attributes.
+    dumped_attrs = {a["name"]: a for a in compiled.model_dump()["kinds"][0]["attributes"]}
+    assert "many" not in dumped_attrs["text"]
+    assert dumped_attrs["tags"]["many"] is True
 
 
 def test_validate_authored_agrees_with_validate() -> None:

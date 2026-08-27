@@ -19,9 +19,18 @@ class _Strict(BaseModel):
     bool→int (``seq: true``), or str→int (``cursor: "1"``). JSON number semantics
     are preserved: a JSON integer still satisfies an ``int`` field, and element
     ``data`` values are ``Any`` (untouched by strictness — ``validate`` types them).
-    ``populate_by_name`` lets aliased fields (e.g. ``schema``) also be set by name."""
+    ``populate_by_name`` lets aliased fields (e.g. ``schema``) also be set by name.
+
+    Serialization mirrors Zod ``.optional()`` = *undefined* (never *null*): dumps go
+    by alias, and a field left at its default (an omitted optional like ``many`` or
+    ``cursor``) is omitted rather than emitted as ``null``/``false``."""
 
     model_config = ConfigDict(extra="forbid", strict=True, populate_by_name=True)
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        kwargs.setdefault("by_alias", True)
+        kwargs.setdefault("exclude_defaults", True)
+        return super().model_dump(**kwargs)
 
 
 # — Elements & host schema ————————————————————————————————————————————————
@@ -44,7 +53,9 @@ class Attribute(_Strict):
     description: str
     type: AttributeType
     required: bool
-    many: bool | None = None
+    # Zod ``z.boolean().optional()``: omit or true/false, never null. Default False
+    # (= omitted); strict mode rejects an explicit null.
+    many: bool = False
 
 
 class Kind(_Strict):
@@ -115,11 +126,13 @@ class ApplyRequest(_Strict):
 
 
 class ApplyAccepted(_Strict):
-    ok: Literal[True] = True
+    # ``ok`` is the discriminator and is REQUIRED (no default) — ``{}`` must not
+    # parse as an accepted verdict, and a rejection must not be invented.
+    ok: Literal[True]
 
 
 class ApplyRejected(_Strict):
-    ok: Literal[False] = False
+    ok: Literal[False]
     code: ErrorCode
     message: str
 
@@ -140,7 +153,9 @@ class DescribeResponse(_Strict):
 
 class EventsRequest(_Strict):
     board_id: str
-    cursor: int | None = None
+    # Zod ``z.number().optional()``: omit (→ from the start) or a number, never
+    # null. Default 0 (= omitted); strict mode rejects an explicit null.
+    cursor: int = 0
 
 
 class EventsResponse(_Strict):

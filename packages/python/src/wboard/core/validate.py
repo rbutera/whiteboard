@@ -20,11 +20,11 @@ from .wire import (
     WireSchema,
 )
 
-_ACCEPT = ApplyAccepted()
+_ACCEPT = ApplyAccepted(ok=True)
 
 
 def _reject(code: ErrorCode, message: str) -> ApplyRejected:
-    return ApplyRejected(code=code, message=message)
+    return ApplyRejected(ok=False, code=code, message=message)
 
 
 def _is_number(value: object) -> bool:
