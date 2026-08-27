@@ -14,10 +14,14 @@ from .errors import ErrorCode
 
 
 class _Strict(BaseModel):
-    """Closed object: unknown fields are a parse error. ``populate_by_name`` lets
-    fields carrying a wire alias (e.g. ``schema``) also be set by attribute name."""
+    """Closed object: unknown fields are a parse error, and ``strict`` mode forbids
+    the primitive coercions Zod's parser rejects — no int→bool (``required: 1``),
+    bool→int (``seq: true``), or str→int (``cursor: "1"``). JSON number semantics
+    are preserved: a JSON integer still satisfies an ``int`` field, and element
+    ``data`` values are ``Any`` (untouched by strictness — ``validate`` types them).
+    ``populate_by_name`` lets aliased fields (e.g. ``schema``) also be set by name."""
 
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", strict=True, populate_by_name=True)
 
 
 # — Elements & host schema ————————————————————————————————————————————————

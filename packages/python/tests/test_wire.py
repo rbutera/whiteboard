@@ -8,6 +8,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from wboard.core import (
     ApplyRequest,
+    Attribute,
     CreateRequest,
     CreateResponse,
     DescribeResponse,
@@ -91,6 +92,29 @@ def test_tool_shapes_roundtrip() -> None:
     assert len(apply_req.ops) == 1
     ev = EventsResponse.model_validate({"events": [], "cursor": 0})
     assert ev.cursor == 0
+
+
+def test_strict_rejects_coercions_zod_rejects() -> None:
+    # Zod rejects all three; pydantic without strict would coerce them.
+    with pytest.raises(ValidationError):  # int → bool
+        Attribute.model_validate({"name": "n", "description": "d", "type": "string", "required": 1})
+    with pytest.raises(ValidationError):  # bool → int
+        Event.model_validate(
+            {"seq": True, "actor": "a", "op": {"op": "delete", "op_id": "o", "id": "x"}}
+        )
+    with pytest.raises(ValidationError):  # str → int
+        EventsResponse.model_validate({"events": [], "cursor": "1"})
+
+
+def test_strict_preserves_json_number_semantics() -> None:
+    # A JSON integer still satisfies an int field (seq/cursor).
+    assert (
+        Event.model_validate(
+            {"seq": 3, "actor": "a", "op": {"op": "delete", "op_id": "o", "id": "x"}}
+        ).seq
+        == 3
+    )
+    assert EventsResponse.model_validate({"events": [], "cursor": 7}).cursor == 7
 
 
 def test_create_request_schema_alias_roundtrips() -> None:
