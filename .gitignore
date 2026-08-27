@@ -5,5 +5,12 @@ coverage/
 *.log
 .DS_Store
 
+# Python (packages/python) — uv venv and tool caches
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+
 # Rai's global gitignore excludes openspec/; this repo tracks it
 !openspec/
