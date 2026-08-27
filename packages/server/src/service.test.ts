@@ -149,7 +149,8 @@ describe("BoardService", () => {
     ]);
 
     // One apply wins and appends; the other dedups to a no-op — never two events.
-    expect([a, b]).toContainEqual({ ok: true });
+    // Both must succeed: a dedup is still ok:true, not a failure.
+    expect([a, b]).toEqual([{ ok: true }, { ok: true }]);
     expect((await svc.getEvents(board)).events.length).toBe(1);
   });
 
