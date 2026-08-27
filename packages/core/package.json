@@ -1,7 +1,18 @@
 {
   "name": "@wboard/core",
   "version": "0.0.0",
+  "description": "Authoring and wire-contract core for the whiteboard protocol: element shapes, host-schema kit, and Zod-backed wire validation.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rbutera/whiteboard.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/rbutera/whiteboard#readme",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

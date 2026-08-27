@@ -1,7 +1,18 @@
 {
   "name": "@wboard/server",
   "version": "0.0.0",
+  "description": "Reference board service for the whiteboard protocol: append-only event log, projections, embeddable in-process with pluggable persistence.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rbutera/whiteboard.git",
+    "directory": "packages/server"
+  },
+  "homepage": "https://github.com/rbutera/whiteboard#readme",
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
