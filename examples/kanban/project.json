@@ -1,0 +1,20 @@
+{
+  "name": "kanban",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/kanban/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "command": "rm -rf dist && tsc -p tsconfig.build.json",
+      "options": { "cwd": "examples/kanban" }
+    },
+    "typecheck": {
+      "command": "tsc -p tsconfig.json",
+      "options": { "cwd": "examples/kanban" }
+    },
+    "test": {
+      "command": "vitest run",
+      "options": { "cwd": "examples/kanban" }
+    }
+  }
+}
