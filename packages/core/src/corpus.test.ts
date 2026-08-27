@@ -52,6 +52,24 @@ function loadFixtures(dir: string): { file: string; raw: unknown }[] {
   });
 }
 
+/**
+ * The fixture root's own layout is closed: a stray root-level fixture or an
+ * unexpected directory would otherwise go silently untested (the loader only
+ * opens the dirs named below). Anything not in `allowed` throws. `project/` is
+ * server-semantics — core's validate runner does not read it, but it is a valid
+ * root member, so it is allowed here.
+ */
+function assertRootLayout(root: string, allowed: ReadonlySet<string>): void {
+  for (const entry of readdirSync(root)) {
+    if (!allowed.has(entry)) {
+      throw new Error(`unexpected entry in fixture root: ${join(root, entry)}`);
+    }
+  }
+}
+
+const ROOT_LAYOUT = new Set([".gitkeep", "README.md", "accept", "reject", "project"]);
+assertRootLayout(FIXTURES_ROOT, ROOT_LAYOUT);
+
 const acceptFixtures = loadFixtures(join(FIXTURES_ROOT, "accept"));
 const rejectFixtures = loadFixtures(join(FIXTURES_ROOT, "reject"));
 
@@ -110,6 +128,13 @@ describe("conformance corpus", () => {
       const dir = mkdtempSync(join(tmpdir(), "corpus-hidden-"));
       writeFileSync(join(dir, ".bad.json"), "{}");
       expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
+    });
+
+    it("fails on an unexpected entry in the fixture root", () => {
+      const dir = mkdtempSync(join(tmpdir(), "corpus-root-"));
+      mkdirSync(join(dir, "accept"));
+      mkdirSync(join(dir, "surprise"));
+      expect(() => assertRootLayout(dir, ROOT_LAYOUT)).toThrow(/unexpected entry in fixture root/);
     });
   });
 

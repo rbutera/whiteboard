@@ -63,6 +63,22 @@ function loadFixtures(dir: string): { file: string; raw: unknown }[] {
   });
 }
 
+/**
+ * The fixture root's own layout is closed too: a stray root-level fixture or an
+ * unexpected fourth directory would otherwise go silently untested (the loaders
+ * only open the dirs named below). Anything not in `allowed` throws.
+ */
+function assertRootLayout(root: string, allowed: ReadonlySet<string>): void {
+  for (const entry of readdirSync(root)) {
+    if (!allowed.has(entry)) {
+      throw new Error(`unexpected entry in fixture root: ${join(root, entry)}`);
+    }
+  }
+}
+
+const ROOT_LAYOUT = new Set([".gitkeep", "README.md", "accept", "reject", "project"]);
+assertRootLayout(FIXTURES_ROOT, ROOT_LAYOUT);
+
 const acceptFixtures = loadFixtures(join(FIXTURES_ROOT, "accept"));
 const rejectFixtures = loadFixtures(join(FIXTURES_ROOT, "reject"));
 const projectFixtures = loadFixtures(join(FIXTURES_ROOT, "project"));
@@ -154,6 +170,13 @@ describe("server corpus", () => {
       const dir = mkdtempSync(join(tmpdir(), "server-corpus-hidden-"));
       writeFileSync(join(dir, ".bad.json"), "{}");
       expect(() => loadFixtures(dir)).toThrow(/unexpected non-fixture entry/);
+    });
+
+    it("fails on an unexpected entry in the fixture root", () => {
+      const dir = mkdtempSync(join(tmpdir(), "server-corpus-root-"));
+      mkdirSync(join(dir, "accept"));
+      mkdirSync(join(dir, "surprise"));
+      expect(() => assertRootLayout(dir, ROOT_LAYOUT)).toThrow(/unexpected entry in fixture root/);
     });
   });
 });
