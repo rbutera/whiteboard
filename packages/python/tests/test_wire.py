@@ -5,7 +5,7 @@ import json
 from typing import Any
 
 import pytest
-from pydantic import TypeAdapter, ValidationError
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from wboard.core import (
     ApplyRequest,
@@ -175,22 +175,27 @@ def test_create_request_schema_alias_roundtrips() -> None:
         CreateRequest.model_validate({"schema_": {"kinds": []}})
 
 
+def _all_dump_paths(model: BaseModel) -> list[dict[str, Any]]:
+    """The four serialization paths, each as a dict: model_dump, model_dump_json,
+    TypeAdapter.dump_python, TypeAdapter.dump_json. They must all agree."""
+    ta: TypeAdapter[Any] = TypeAdapter(type(model))
+    return [
+        model.model_dump(),
+        json.loads(model.model_dump_json()),
+        ta.dump_python(model),
+        json.loads(ta.dump_json(model)),
+    ]
+
+
 def test_every_serialization_path_agrees() -> None:
-    # model_dump(), model_dump_json(), and TypeAdapter dumping must all emit the
-    # same wire JSON: unset optionals omitted (never null/false/0), aliases used.
+    # All four dump calls must emit the same wire JSON: unset optionals omitted
+    # (never null/false/0), aliases used. serialize_by_alias needs pydantic 2.11+.
     attr_base = {"name": "n", "description": "d", "type": "string", "required": False}
-    attr = Attribute.model_validate(attr_base)  # many unset
-    attr_ta: TypeAdapter[Attribute] = TypeAdapter(Attribute)
-    assert attr.model_dump() == attr_base
-    assert json.loads(attr.model_dump_json()) == attr_base  # no "many": false
-    assert attr_ta.dump_python(attr) == attr_base
-    assert json.loads(attr_ta.dump_json(attr)) == attr_base
+    for dumped in _all_dump_paths(Attribute.model_validate(attr_base)):  # many unset
+        assert dumped == attr_base  # no "many": false anywhere
 
-    req = EventsRequest.model_validate({"board_id": "b"})  # cursor unset
-    assert "cursor" not in json.loads(req.model_dump_json())  # no "cursor": 0
-    assert "cursor" not in TypeAdapter(EventsRequest).dump_python(req)
+    for dumped in _all_dump_paths(EventsRequest.model_validate({"board_id": "b"})):  # cursor unset
+        assert "cursor" not in dumped  # no "cursor": 0 anywhere
 
-    cr = CreateRequest.model_validate({"schema": {"kinds": []}})
-    assert "schema" in json.loads(cr.model_dump_json())  # not "schema_"
-    assert "schema_" not in json.loads(cr.model_dump_json())
-    assert "schema" in TypeAdapter(CreateRequest).dump_python(cr)
+    for dumped in _all_dump_paths(CreateRequest.model_validate({"schema": {"kinds": []}})):
+        assert "schema" in dumped and "schema_" not in dumped  # aliased on every path

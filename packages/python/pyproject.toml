@@ -5,7 +5,9 @@ description = "Python twin of the whiteboard protocol: wire models, validation, 
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
-dependencies = ["pydantic>=2,<3"]
+# pydantic 2.11+ for ConfigDict(serialize_by_alias): the wire models rely on it
+# so every dump path emits aliases (e.g. "schema", not "schema_"). 2.10 lacks it.
+dependencies = ["pydantic>=2.11,<3"]
 
 [dependency-groups]
 dev = ["pytest>=8,<9", "mypy>=1,<2", "ruff==0.14.2"]
