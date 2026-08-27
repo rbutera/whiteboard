@@ -72,4 +72,47 @@ describe("InMemoryBoardStore", () => {
 
     expect((await store.getEvents("b", 0))[0]!.seq).toBe(1);
   });
+
+  it("does not alias the caller's op on write (mutating element.data after append)", async () => {
+    const store = new InMemoryBoardStore();
+    await store.createBoard("b", SCHEMA);
+    const op = createOp("a");
+    await store.append("b", [{ actor: "alice", op }]);
+
+    (op.op === "create" ? op.element.data : {}).leaked = "mutated after append";
+
+    const stored = await store.getEvents("b", 0);
+    expect(stored[0]!.op.op === "create" && stored[0]!.op.element.data).toEqual({});
+  });
+
+  it("hands back deep copies so callers cannot mutate a stored op's nested data", async () => {
+    const store = new InMemoryBoardStore();
+    await store.createBoard("b", SCHEMA);
+    await store.append("b", [entry("a")]);
+
+    const read = await store.getEvents("b", 0);
+    if (read[0]!.op.op === "create") read[0]!.op.element.data.leaked = "mutated after read";
+
+    const reread = await store.getEvents("b", 0);
+    expect(reread[0]!.op.op === "create" && reread[0]!.op.element.data).toEqual({});
+  });
+
+  it("hands back a deep copy of the schema so callers cannot mutate stored kinds", async () => {
+    const store = new InMemoryBoardStore();
+    const schema: WireSchema = {
+      kinds: [{ id: "note", description: "a note", attributes: [] }],
+    };
+    await store.createBoard("b", schema);
+
+    const read = await store.getSchema("b");
+    read!.kinds[0]!.id = "mutated";
+    // The caller's own input must not leak in either.
+    schema.kinds[0]!.description = "mutated input";
+
+    expect((await store.getSchema("b"))!.kinds[0]).toEqual({
+      id: "note",
+      description: "a note",
+      attributes: [],
+    });
+  });
 });
